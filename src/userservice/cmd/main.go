@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 	"user-service/internal/app"
 	grpcPort "user-service/internal/ports/grpc"
@@ -41,8 +44,21 @@ func main() {
 		return
 	}
 
-	grpcServer := grpcPort.NewGRPCServer(app, logger)
+	sigQuit := make(chan os.Signal, 1)
+	signal.Ignore(syscall.SIGHUP, syscall.SIGPIPE)
+	signal.Notify(sigQuit, syscall.SIGINT, syscall.SIGTERM)
+
 	eg, ctx := errgroup.WithContext(context.Background())
+	eg.Go(func() error {
+		select {
+		case s := <-sigQuit:
+			return fmt.Errorf("signal: %v", s)
+		case <-ctx.Done():
+			return nil
+		}
+	})
+
+	grpcServer := grpcPort.NewGRPCServer(app, logger)
 
 	eg.Go(func() error {
 		logger.Infof("starting gRPC server on port %s", port)
