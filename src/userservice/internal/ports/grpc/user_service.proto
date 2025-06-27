@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package user;
+option go_package = "userservice/internal/ports/grpc";
+
+service UserService {
+  rpc Register(RegisterRequest) returns (Empty) {}
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc ValidateToken(TokenRequest) returns (TokenResponse) {}
+}
+
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+message TokenRequest {
+  string token = 1;
+}
+
+message TokenResponse {
+  string userId = 1;
+}
+
+message Empty {}

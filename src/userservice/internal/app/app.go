@@ -18,7 +18,7 @@ type Program struct {
 }
 
 type App interface {
-	Register(ctx context.Context, email, password string) error
+	Register(ctx context.Context, username, email, password string) error
 	Login(ctx context.Context, email, password string) (string, error)
 }
 
@@ -41,7 +41,7 @@ func NewJWTService(secretKey string, ttl time.Duration) *JWTService {
 	return &JWTService{secretKey: secretKey, ttl: ttl}
 }
 
-func (r *Program) Register(ctx context.Context, email, password string) error {
+func (r *Program) Register(ctx context.Context, username, email, password string) error {
 	taken, err := r.repo.IsEmailTaken(ctx, email)
 	if err != nil {
 		return err
@@ -58,6 +58,7 @@ func (r *Program) Register(ctx context.Context, email, password string) error {
 	user := &domain.User{
 		ID:        uuid.Must(uuid.NewRandom()),
 		Email:     email,
+		Username:  username,
 		Password:  string(hashPassword),
 		CreatedAt: time.Now(),
 	}
