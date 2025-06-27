@@ -1,0 +1,34 @@
+name: Run All Microservices Tests
+
+on:
+  push:
+    paths:
+      - "src/**"
+  pull_request:
+    paths:
+      - "src/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+
+      - name: Run tests in each microservice
+        run: |
+          for service in ./src/*/ ; do
+            if [ -f "$service/go.mod" ]; then
+              echo "Testing $service"
+              cd "$service"
+              go mod tidy
+              go test ./... -v
+              cd - > /dev/null
+            fi
+          done
