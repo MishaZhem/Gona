@@ -23,6 +23,7 @@ type Program struct {
 type App interface {
 	Register(ctx context.Context, username, email, password string) error
 	Login(ctx context.Context, email, password string) (string, error)
+	ValidateToken(token string) (string, error)
 }
 
 type JWTService struct {
@@ -96,6 +97,10 @@ func (r *Program) Login(ctx context.Context, email, password string) (string, er
 
 	r.logger.Infof("User successfully logged in: %s", email)
 	return token, nil
+}
+
+func (r *Program) ValidateToken(token string) (string, error) {
+	return r.jwtService.ValidateToken(token)
 }
 
 func (j *JWTService) GenerateToken(userID string, email string) (string, error) {

@@ -35,6 +35,14 @@ func (s *Server) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, 
 	return &LoginResponse{Token: token}, nil
 }
 
+func (s *Server) ValidateToken(ctx context.Context, req *TokenRequest) (*TokenResponse, error) {
+	userId, err := s.app.ValidateToken(req.Token)
+	if err != nil {
+		return &TokenResponse{UserId: ""}, status.Error(getStatusByError(err), err.Error())
+	}
+	return &TokenResponse{UserId: userId}, nil
+}
+
 func getStatusByError(err error) codes.Code {
 	switch {
 	case errors.Is(err, app.ErrInvalid):
