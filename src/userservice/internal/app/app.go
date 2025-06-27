@@ -7,6 +7,8 @@ import (
 	"user-service/internal/domain"
 	"user-service/internal/repository"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -15,6 +17,7 @@ import (
 type Program struct {
 	repo       repository.Repository
 	jwtService *JWTService
+	logger     *log.Logger
 }
 
 type App interface {
@@ -30,10 +33,11 @@ type JWTService struct {
 var ErrEmailTaken = errors.New("email is already taken")
 var ErrInvalid = errors.New("invalid email or password")
 
-func NewApp(authRepository repository.Repository, jwtService *JWTService) App {
+func NewApp(authRepository repository.Repository, jwtService *JWTService, logger *log.Logger) App {
 	return &Program{
 		repo:       authRepository,
 		jwtService: jwtService,
+		logger:     logger,
 	}
 }
 
@@ -42,11 +46,14 @@ func NewJWTService(secretKey string, ttl time.Duration) *JWTService {
 }
 
 func (r *Program) Register(ctx context.Context, username, email, password string) error {
+	r.logger.Infof("Trying to register user: %s", email)
 	taken, err := r.repo.IsEmailTaken(ctx, email)
 	if err != nil {
+		r.logger.Warnf("Problem occurs when checking email: %s", email)
 		return err
 	}
 	if taken {
+		r.logger.Warnf("Email is already taken: %s", email)
 		return ErrEmailTaken
 	}
 
@@ -63,25 +70,31 @@ func (r *Program) Register(ctx context.Context, username, email, password string
 		CreatedAt: time.Now(),
 	}
 
+	r.logger.Infof("User successfully registered: %s", email)
 	return r.repo.CreateUser(ctx, user)
 }
 
-func (s *Program) Login(ctx context.Context, email, password string) (string, error) {
-	user, err := s.repo.GetUserByEmail(ctx, email)
+func (r *Program) Login(ctx context.Context, email, password string) (string, error) {
+	r.logger.Infof("Trying to login user: %s", email)
+	user, err := r.repo.GetUserByEmail(ctx, email)
 	if err != nil {
+		r.logger.Warnf("User not found: %s", email)
 		return "", err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
+		r.logger.Warnf("Problem with comparing passwords: %s", email)
 		return "", ErrInvalid
 	}
 
-	token, err := s.jwtService.GenerateToken(user.ID.String(), user.Email)
+	token, err := r.jwtService.GenerateToken(user.ID.String(), user.Email)
 	if err != nil {
+		r.logger.Warnf("Failed to generate token: %s", email)
 		return "", err
 	}
 
+	r.logger.Infof("User successfully logged in: %s", email)
 	return token, nil
 }
 
