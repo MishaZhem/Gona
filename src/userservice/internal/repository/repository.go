@@ -6,16 +6,16 @@ import (
 	"user-service/internal/repository/queries"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type repo struct {
 	*queries.Queries
 	pool   *pgxpool.Pool
-	logger logrus.FieldLogger
+	logger log.FieldLogger
 }
 
-func NewRepository(pgxPool *pgxpool.Pool, logger logrus.FieldLogger) Repository {
+func NewRepository(pgxPool *pgxpool.Pool, logger log.FieldLogger) Repository {
 	return &repo{
 		Queries: queries.New(pgxPool),
 		pool:    pgxPool,
