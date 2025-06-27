@@ -1,0 +1,46 @@
+services:
+  userservice:
+    build:
+      context: ./src/userservice
+    environment:
+      - GRPC_PORT=50051
+      - POSTGRES_URL=postgres://postgres:postgres@userservice_db:5432/userdb?sslmode=disable
+      - JWT_SECRET=SomeHardAndSecretWord
+    depends_on:
+      - userservice_db
+    ports:
+      - "50051:50051"
+    networks:
+      - app-network
+
+  userservice_db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./src/userservice/migrations:/migrations
+    entrypoint: >
+      sh -c "
+      until nc -z userservice_db 5432; do
+        echo 'Waiting for Postgres...';
+        sleep 2;
+      done &&
+      migrate -path=/migrations -database postgres://postgres:postgres@userservice_db:5432/userdb?sslmode=disable up
+      "
+    depends_on:
+      - userservice_db
+    networks:
+      - app-network
+
+networks:
+  app-network:

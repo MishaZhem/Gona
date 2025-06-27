@@ -8,9 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"user-service/internal/app"
-	grpcPort "user-service/internal/ports/grpc"
-	"user-service/internal/repository"
+	"userservice/internal/app"
+	grpcPort "userservice/internal/ports/grpc"
+	"userservice/internal/repository"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	log "github.com/sirupsen/logrus"

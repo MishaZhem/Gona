@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"time"
-	"user-service/internal/domain"
-	"user-service/internal/repository"
+	"userservice/internal/domain"
+	"userservice/internal/repository"
 
 	log "github.com/sirupsen/logrus"
 

@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"user-service/internal/domain"
-	"user-service/internal/repository/queries"
+	"userservice/internal/domain"
+	"userservice/internal/repository/queries"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	log "github.com/sirupsen/logrus"

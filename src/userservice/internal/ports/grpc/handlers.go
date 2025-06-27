@@ -3,7 +3,7 @@ package grpc
 import (
 	context "context"
 	"errors"
-	"user-service/internal/app"
+	"userservice/internal/app"
 
 	"google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"

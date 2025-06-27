@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"user-service/internal/domain"
+	"userservice/internal/domain"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx"
 )
 
@@ -14,12 +15,12 @@ var (
 )
 
 const createUserQuery = `
-    INSERT INTO users (email, username, password_hash, created_at)
-    VALUES ($1, $2, $3, $4)`
+    INSERT INTO users (id, email, username, password_hash, created_at)
+    VALUES ($1, $2, $3, $4, $5)`
 
 func (q *Queries) CreateUser(ctx context.Context, user *domain.User) error {
 
-	if _, err := q.pool.Exec(ctx, createUserQuery, user.Email, user.Username, user.Password, user.CreatedAt); err != nil {
+	if _, err := q.pool.Exec(ctx, createUserQuery, uuid.Must(uuid.NewRandom()), user.Email, user.Username, user.Password, user.CreatedAt); err != nil {
 		return err
 	}
 	return nil
