@@ -2,11 +2,7 @@ name: Run All Microservices Tests
 
 on:
   push:
-    paths:
-      - "src/**"
   pull_request:
-    paths:
-      - "src/**"
 
 jobs:
   test:
