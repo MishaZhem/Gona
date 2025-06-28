@@ -2,13 +2,7 @@ name: Docker Build for All Services
 
 on:
   push:
-    paths:
-      - "src/**/Dockerfile"
-      - "src/**/**.go"
   pull_request:
-    paths:
-      - "src/**/Dockerfile"
-      - "src/**/**.go"
 
 jobs:
   docker-build:
