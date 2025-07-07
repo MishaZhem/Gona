@@ -1,8 +1,8 @@
 package grpc
 
 import (
-	"userservice/internal/app"
-	"userservice/internal/middleware"
+	"github.com/MishaZhem/Gona/src/userservice/internal/app"
+	"github.com/MishaZhem/Gona/src/userservice/internal/middleware"
 
 	"google.golang.org/grpc"
 

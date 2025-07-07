@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"time"
-	"userservice/internal/domain"
-	"userservice/internal/repository"
+
+	"github.com/MishaZhem/Gona/src/userservice/internal/domain"
+	"github.com/MishaZhem/Gona/src/userservice/internal/repository"
 
 	log "github.com/sirupsen/logrus"
 

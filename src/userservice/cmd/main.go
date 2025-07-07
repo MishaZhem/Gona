@@ -8,9 +8,10 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"userservice/internal/app"
-	grpcPort "userservice/internal/ports/grpc"
-	"userservice/internal/repository"
+
+	"github.com/MishaZhem/Gona/src/userservice/internal/app"
+	grpcPort "github.com/MishaZhem/Gona/src/userservice/internal/ports/grpc"
+	"github.com/MishaZhem/Gona/src/userservice/internal/repository"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	log "github.com/sirupsen/logrus"

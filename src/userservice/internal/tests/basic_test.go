@@ -4,8 +4,10 @@ import (
 	"context"
 	"testing"
 	"time"
-	"userservice/internal/app"
-	"userservice/internal/domain"
+
+	"github.com/MishaZhem/Gona/src/userservice/internal/domain"
+
+	"github.com/MishaZhem/Gona/src/userservice/internal/app"
 
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
