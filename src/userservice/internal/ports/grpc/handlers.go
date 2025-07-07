@@ -3,7 +3,8 @@ package grpc
 import (
 	context "context"
 	"errors"
-	"userservice/internal/app"
+
+	"github.com/MishaZhem/Gona/src/userservice/internal/app"
 
 	"google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"

@@ -2,8 +2,9 @@ package repository
 
 import (
 	"context"
-	"userservice/internal/domain"
-	"userservice/internal/repository/queries"
+
+	"github.com/MishaZhem/Gona/src/userservice/internal/domain"
+	"github.com/MishaZhem/Gona/src/userservice/internal/repository/queries"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	log "github.com/sirupsen/logrus"

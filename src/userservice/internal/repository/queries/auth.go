@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"userservice/internal/domain"
+
+	"github.com/MishaZhem/Gona/src/userservice/internal/domain"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx"
