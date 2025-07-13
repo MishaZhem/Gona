@@ -3,6 +3,7 @@ package http
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/MishaZhem/Gona/src/gateway/internal/app"
 	"github.com/gin-gonic/gin"
@@ -60,7 +61,12 @@ func login(a app.App) gin.HandlerFunc {
 
 func validateToken(a app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader("Authorization")
+		authHeader := c.GetHeader("Authorization")
+		if !strings.HasPrefix(authHeader, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, ErrorResponse(ErrNoToken))
+			return
+		}
+		token := strings.TrimPrefix(authHeader, "Bearer ")
 		if token == "" {
 			c.JSON(http.StatusUnauthorized, ErrorResponse(ErrNoToken))
 			return

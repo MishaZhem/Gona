@@ -15,10 +15,11 @@ import (
 	httpgin "github.com/MishaZhem/Gona/src/gateway/internal/ports/http"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
-	userserviceAddr := getEnv("USERSERVICE_ADDR", "localhost:50051")
+	userserviceAddr := getEnv("USERSERVICE_ADDR", "userservice:50051")
 	httpPort := getEnv("GATEWAY_HTTP_PORT", "8080")
 
 	sigQuit := make(chan os.Signal, 1)
@@ -35,7 +36,8 @@ func main() {
 		}
 	})
 
-	conn, err := grpc.Dial(userserviceAddr, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithTimeout(5*time.Second))
+	conn, err := grpc.DialContext(context.Background(), userserviceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
 	if err != nil {
 		log.Fatalf("Failed to connect to userservice: %v", err)
 	}

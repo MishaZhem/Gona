@@ -19,7 +19,7 @@ func NewHTTPServer(port string, a app.App) Server {
 	gin.SetMode(gin.ReleaseMode)
 	s := Server{app: a}
 	s.server = &http.Server{
-		Addr:    port,
+		Addr:    ":" + port,
 		Handler: s.Handler(),
 	}
 	return s
