@@ -13,8 +13,8 @@ type App struct {
 	timeout    time.Duration
 }
 
-func NewApp(conn *grpc.ClientConn, timeout time.Duration) *App {
-	return &App{
+func NewApp(conn *grpc.ClientConn, timeout time.Duration) App {
+	return App{
 		userClient: userpb.NewUserServiceClient(conn),
 		timeout:    timeout,
 	}

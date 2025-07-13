@@ -9,4 +9,6 @@ COPY . .
 
 RUN go build -o gateway ./cmd/main.go
 
+EXPOSE 8080
+
 CMD ["./gateway"]
