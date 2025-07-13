@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/MishaZhem/Gona/src/gateway/genproto/userpb"
-	"google.golang.org/grpc"
 )
 
 type App struct {
@@ -13,9 +12,9 @@ type App struct {
 	timeout    time.Duration
 }
 
-func NewApp(conn *grpc.ClientConn, timeout time.Duration) App {
+func NewApp(userClient userpb.UserServiceClient, timeout time.Duration) App {
 	return App{
-		userClient: userpb.NewUserServiceClient(conn),
+		userClient: userClient,
 		timeout:    timeout,
 	}
 }

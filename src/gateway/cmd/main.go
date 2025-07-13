@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/MishaZhem/Gona/src/gateway/genproto/userpb"
 	"github.com/MishaZhem/Gona/src/gateway/internal/app"
 	httpgin "github.com/MishaZhem/Gona/src/gateway/internal/ports/http"
 	"golang.org/x/sync/errgroup"
@@ -43,7 +44,8 @@ func main() {
 	}
 	defer conn.Close()
 
-	app := app.NewApp(conn, 5*time.Second)
+	userClient := userpb.NewUserServiceClient(conn)
+	app := app.NewApp(userClient, 5*time.Second)
 
 	httpServer := httpgin.NewHTTPServer(httpPort, app)
 
