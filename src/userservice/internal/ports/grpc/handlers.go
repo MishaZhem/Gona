@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/MishaZhem/Gona/src/userservice/genproto/userpb"
-	"github.com/MishaZhem/Gona/src/userservice/internal/app"
 
 	"google.golang.org/grpc"
 
