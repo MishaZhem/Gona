@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/MishaZhem/Gona/src/gateway/genproto/userpb"
@@ -48,9 +47,6 @@ func (a *App) Login(email, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if resp.Error != "" {
-		return "", errors.New(resp.Error)
-	}
 	return resp.Token, nil
 }
 
@@ -63,9 +59,6 @@ func (a *App) ValidateToken(token string) (string, error) {
 	})
 	if err != nil {
 		return "", err
-	}
-	if resp.Error != "" {
-		return "", errors.New(resp.Error)
 	}
 	return resp.UserId, nil
 }
