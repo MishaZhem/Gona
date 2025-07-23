@@ -3,26 +3,28 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/MishaZhem/Gona/src/supportchat/internal/domain"
 	"github.com/MishaZhem/Gona/src/supportchat/internal/repository"
+	log "github.com/sirupsen/logrus"
 )
 
 type App struct {
-	repo *repository.Repository
-	bot  SupportBot
+	repo   *repository.Repository
+	bot    SupportBot
+	logger *log.Logger
 }
 
 type SupportBot interface {
 	GenerateResponse(input string) (string, bool)
 }
 
-func NewApp(repo *repository.Repository, bot SupportBot) *App {
+func NewApp(repo *repository.Repository, bot SupportBot, logger *log.Logger) *App {
 	return &App{
-		repo: repo,
-		bot:  bot,
+		repo:   repo,
+		bot:    bot,
+		logger: logger,
 	}
 }
 
@@ -57,8 +59,6 @@ func (a *App) SendUserMessage(ctx context.Context, userID, text string) ([]*doma
 		return nil, err
 	}
 
-	fmt.Print(meta.WorkerID)
-	fmt.Print(meta.WorkerID == "")
 	if meta.WorkerID == "" {
 		answer, ok := a.bot.GenerateResponse(text)
 		botMsg := &domain.Message{

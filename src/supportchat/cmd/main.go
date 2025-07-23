@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/MishaZhem/Gona/src/supportchat/internal/app"
 	"github.com/MishaZhem/Gona/src/supportchat/internal/ports/ws"
@@ -35,9 +36,13 @@ func main() {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 
+	logger := log.New()
+	logger.SetLevel(log.InfoLevel)
+	logger.SetFormatter(&log.TextFormatter{})
+
 	repo := repository.NewRepository(rdb, 24*time.Hour)
 	bot := &DummyBot{}
-	appService := app.NewApp(repo, bot)
+	appService := app.NewApp(repo, bot, logger)
 	wsHandler := ws.NewHandler(appService)
 
 	http.HandleFunc("/chat", wsHandler.ServeWS)
