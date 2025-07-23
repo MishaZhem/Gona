@@ -27,6 +27,27 @@ services:
       - app-network 
     restart: unless-stopped
 
+  supportchat:
+    build:
+      context: ./src/supportchat
+    ports:
+      - "9000:9000"
+    environment:
+      - REDIS_ADDR=redis:6379
+      - SUPPORTCHAT_PORT=9000
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
   userservice_db:
     image: postgres:15
     restart: always
