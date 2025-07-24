@@ -1,0 +1,41 @@
+@use "../../assets//styles/variables.scss" as *;
+
+.screen {
+  color: white;
+}
+
+.bottom {
+  width: 100%;
+  display: flex;
+  padding: 1.25rem;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.input {
+  padding: 0.75rem;
+  padding-left: 1rem;
+  border-radius: 0.5rem;
+  align-items: center;
+  border: 0.5px solid var(--Separator, #2e3547);
+  background: var(--Dark-Gray-01, #f6f7f8);
+  color: $text-primary;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+  outline: none;
+}
+
+.send {
+  display: flex;
+  height: 2.75rem;
+  width: 3.75rem;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+  background: var(--Dark-Gray-02, #2c3242);
+  outline: none;
+  border: none;
+}
