@@ -1,0 +1,66 @@
+@use "../../assets//styles//variables.scss" as *;
+
+@mixin button-style($bg, $text-color) {
+  background-color: $bg;
+  color: $text-color;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button {
+  @include button-style($background-neutral-1, $text-primary);
+}
+
+.accent {
+  @include button-style($background-accent-1, white);
+
+  &:hover {
+    background-color: $background-accent-1-hover;
+  }
+
+  &:active {
+    background-color: $background-accent-1-pressed;
+  }
+}
+
+.secondary {
+  @include button-style($background-neutral-2, $text-secondary);
+}
+
+.invisible {
+  @include button-style($background-invisible, $text-secondary);
+}
+
+.sm {
+  font-size: 0.875rem;
+  padding: 0.4rem 0.8rem;
+}
+
+.md {
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+.lg {
+  font-size: 1.125rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.standard {
+  border-radius: 8px;
+}
+
+.more {
+  border-radius: 1rem;
+}
+
+.max {
+  border-radius: 1000rem;
+  padding: 0.8rem;
+}

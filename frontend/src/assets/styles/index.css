@@ -9,3 +9,7 @@
   font-weight: 400;
   background-color: #11141b;
 }
+
+button {
+  cursor: pointer;
+}
