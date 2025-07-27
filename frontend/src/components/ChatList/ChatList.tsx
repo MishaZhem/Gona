@@ -31,6 +31,23 @@ function ChatBottom(props: ChatBottomProps) {
   )
 }
 
+interface MessageProps {
+  text: string;
+  name: string;
+  time: number;
+  icon: string;
+  id: string;
+}
+
+function Message(props: MessageProps) {
+
+  return (
+    <div>
+
+    </div>
+  )
+}
+
 function Chat() {
   const [opened, setOpened] = useState(false);
 

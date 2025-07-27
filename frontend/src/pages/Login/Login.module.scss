@@ -1,0 +1,71 @@
+.page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 320px;
+}
+
+.toggle {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1rem;
+
+  button {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+}
+
+.active {
+  color: #4c66c3 !important;
+  border-bottom: 2px solid #4c66c3 !important;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  button[type="submit"] {
+    padding: 0.5rem;
+    background: #4c66c3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #6c86e2;
+    }
+  }
+}
+
+.error {
+  color: #d9534f;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}

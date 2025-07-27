@@ -7,6 +7,7 @@ service UserService {
   rpc Register(RegisterRequest) returns (Empty) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc ValidateToken(TokenRequest) returns (TokenResponse) {}
+  rpc Profile(ProfileRequest) returns (ProfileResponse) {}
 }
 
 message RegisterRequest {
@@ -30,6 +31,16 @@ message TokenRequest {
 
 message TokenResponse {
   string userId = 1;
+}
+
+message ProfileRequest {
+  string userId = 1;
+}
+
+message ProfileResponse {
+  string userId = 1;
+  string email = 2;
+  string username = 3;
 }
 
 message Empty {}

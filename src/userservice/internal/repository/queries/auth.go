@@ -3,7 +3,6 @@ package queries
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/MishaZhem/Gona/src/userservice/internal/domain"
 
@@ -33,7 +32,6 @@ const getUserByEmailQuery = `SELECT id, email, username, password_hash, created_
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	row := q.pool.QueryRow(ctx, getUserByEmailQuery, email)
-	fmt.Print(row)
 	var user domain.User
 	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.CreatedAt)
 	if err != nil {
@@ -59,4 +57,22 @@ func (q *Queries) IsEmailTaken(ctx context.Context, email string) (bool, error) 
 		return false, err
 	}
 	return exists, nil
+}
+
+const getUserByIdQuery = `SELECT id, email, username, password_hash, created_at
+	FROM users
+	WHERE id = $1`
+
+func (q *Queries) GetUserById(ctx context.Context, id string) (*domain.User, error) {
+	row := q.pool.QueryRow(ctx, getUserByEmailQuery, id)
+	var user domain.User
+	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.CreatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }

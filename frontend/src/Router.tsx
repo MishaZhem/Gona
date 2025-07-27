@@ -1,5 +1,5 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import { Main } from './pages'
+import { Login, Main } from './pages'
 import Template from './Template'
 
 export default function Router() {
@@ -13,6 +13,12 @@ export default function Router() {
                         path: '/',
                         element: (
                             <Main />
+                        ),
+                    },
+                    {
+                        path: '/login',
+                        element: (
+                            <Login />
                         ),
                     },
                 ],

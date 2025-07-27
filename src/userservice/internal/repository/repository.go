@@ -27,5 +27,6 @@ func NewRepository(pgxPool *pgxpool.Pool, logger log.FieldLogger) Repository {
 type Repository interface {
 	CreateUser(ctx context.Context, user *domain.User) error
 	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetUserById(ctx context.Context, id string) (*domain.User, error)
 	IsEmailTaken(ctx context.Context, email string) (bool, error)
 }

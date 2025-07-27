@@ -61,3 +61,16 @@ func (a *App) ValidateToken(token string) (string, error) {
 	}
 	return resp.UserId, nil
 }
+
+func (a *App) userProfile(userId string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), a.timeout)
+	defer cancel()
+
+	resp, err := a.userClient.ValidateToken(ctx, &userpb.TokenRequest{
+		Token: token,
+	})
+	if err != nil {
+		return "", err
+	}
+	return resp.UserId, nil
+}

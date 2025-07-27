@@ -25,6 +25,7 @@ type App interface {
 	Register(ctx context.Context, username, email, password string) error
 	Login(ctx context.Context, email, password string) (string, error)
 	ValidateToken(token string) (string, error)
+	Profile(ctx context.Context, userId string) (*domain.User, error)
 }
 
 type JWTService struct {
@@ -77,7 +78,6 @@ func (r *Program) Register(ctx context.Context, username, email, password string
 }
 
 func (r *Program) Login(ctx context.Context, email, password string) (string, error) {
-	r.logger.Infof("Trying to login user: %s", email)
 	user, err := r.repo.GetUserByEmail(ctx, email)
 	if err != nil {
 		r.logger.Warnf("User not found: %s", email)
@@ -98,6 +98,17 @@ func (r *Program) Login(ctx context.Context, email, password string) (string, er
 
 	r.logger.Infof("User successfully logged in: %s", email)
 	return token, nil
+}
+
+func (r *Program) Profile(ctx context.Context, userId string) (*domain.User, error) {
+	r.logger.Infof("Trying to take profile of user: %s", userId)
+	user, err := r.repo.GetUserById(ctx, userId)
+	if err != nil {
+		r.logger.Warnf("User not found: %s", userId)
+		return nil, err
+	}
+	r.logger.Infof("User successfully got profile: %s", userId)
+	return user, nil
 }
 
 func (r *Program) ValidateToken(token string) (string, error) {

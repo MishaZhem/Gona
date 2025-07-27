@@ -35,6 +35,11 @@ func (m *MockRepo) GetUserByEmail(ctx context.Context, email string) (*domain.Us
 	return args.Get(0).(*domain.User), args.Error(1)
 }
 
+func (m *MockRepo) GetUserById(ctx context.Context, id string) (*domain.User, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(*domain.User), args.Error(1)
+}
+
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err

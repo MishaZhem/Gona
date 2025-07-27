@@ -46,6 +46,14 @@ func (s *Server) ValidateToken(ctx context.Context, req *userpb.TokenRequest) (*
 	return &userpb.TokenResponse{UserId: userId}, nil
 }
 
+func (s *Server) Profile(ctx context.Context, req *userpb.ProfileRequest) (*userpb.ProfileResponse, error) {
+	user, err := s.app.Profile(ctx, req.UserId)
+	if err != nil {
+		return &userpb.ProfileResponse{UserId: ""}, status.Error(getStatusByError(err), err.Error())
+	}
+	return &userpb.ProfileResponse{UserId: user.ID.String(), Username: user.Username, Email: user.Email}, nil
+}
+
 func getStatusByError(err error) codes.Code {
 	switch {
 	case errors.Is(err, app.ErrInvalid):

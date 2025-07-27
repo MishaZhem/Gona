@@ -3,7 +3,6 @@ package http
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/MishaZhem/Gona/src/gateway/internal/app"
 	"github.com/gin-gonic/gin"
@@ -55,29 +54,34 @@ func login(a app.App) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, TokenResponse(token))
+		c.SetCookie(
+			"access_token",
+			token,
+			3600,
+			"/",
+			"",
+			true,
+			true,
+		)
+
+		c.JSON(http.StatusOK, gin.H{"message": "login successful"})
 	}
 }
 
-func validateToken(a app.App) gin.HandlerFunc {
+func userProfile(a app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if !strings.HasPrefix(authHeader, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, ErrorResponse(ErrNoToken))
-			return
-		}
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		if token == "" {
-			c.JSON(http.StatusUnauthorized, ErrorResponse(ErrNoToken))
+		userID, ok := c.Get("userID")
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "userID missing"})
 			return
 		}
 
-		userID, err := a.ValidateToken(token)
+		profile, err := a.userProfile(userID.(string))
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, ErrorResponse(err))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch profile"})
 			return
 		}
 
-		c.JSON(http.StatusOK, UserIdResponse(userID))
+		c.JSON(http.StatusOK, profile)
 	}
 }
