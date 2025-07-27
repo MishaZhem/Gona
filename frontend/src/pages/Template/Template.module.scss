@@ -1,0 +1,10 @@
+@use "../../assets//styles/variables.scss" as *;
+
+.header {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  background-color: $background-base;
+}

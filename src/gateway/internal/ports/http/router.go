@@ -9,6 +9,7 @@ import (
 func AppRouter(r *gin.RouterGroup, a app.App) {
 	r.POST("/register", register(a))
 	r.POST("/login", login(a))
+	r.POST("/logout", logout())
 
 	auth := r.Group("/")
 	auth.Use(middleware.AuthMiddleware(a))

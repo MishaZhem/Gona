@@ -68,6 +68,22 @@ func login(a app.App) gin.HandlerFunc {
 	}
 }
 
+func logout() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.SetCookie(
+			"access_token",
+			"",
+			-1,
+			"/",
+			"",
+			true,
+			true,
+		)
+
+		c.JSON(http.StatusOK, gin.H{"message": "logged out"})
+	}
+}
+
 func userProfile(a app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, ok := c.Get("userID")

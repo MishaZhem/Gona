@@ -1,6 +1,6 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { Login, Main, Profile } from './pages'
-import Template from './Template'
+import Template from './pages/Template/Template'
 import ProtectedRoute from './AuthorizedRoute'
 
 export default function Router() {
