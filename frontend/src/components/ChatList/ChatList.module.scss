@@ -60,14 +60,104 @@
   border: none;
 }
 
-.closeBtn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0rem;
+.TopChat {
+  height: 3rem;
+  padding: 0 1rem;
+  padding-left: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  & button {
+    padding: 0;
+  }
+}
+
+.TopName {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.TopPhoto {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999rem;
+  background-color: $background-base-alt;
 }
 
 .openChat {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
+}
+
+.messageWrapper {
+  display: flex;
+  padding: 0.5rem 1rem;
+}
+
+.mine {
+  justify-content: flex-end;
+}
+
+.other {
+  justify-content: flex-start;
+}
+
+.message {
+  display: flex;
+  align-items: flex-end;
+  max-width: 80%;
+  gap: 0.5rem;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.content {
+  background: #f1f3f5;
+  border-radius: 0.75rem;
+  border-bottom-left-radius: 0rem;
+  padding: 0.5rem 0.75rem;
+  max-width: 100%;
+  word-break: break-word;
+
+  .text {
+    margin: 0;
+    color: $text-primary;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .meta {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 12px;
+    color: $text-tertiary;
+    margin-bottom: 0.25rem;
+
+    .name {
+      font-weight: 600;
+    }
+  }
+}
+
+.mine .content {
+  background-color: $background-accent-1;
+  color: white;
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0rem;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  height: 18.5rem;
 }
