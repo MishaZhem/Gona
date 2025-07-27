@@ -76,7 +76,7 @@ func userProfile(a app.App) gin.HandlerFunc {
 			return
 		}
 
-		profile, err := a.userProfile(userID.(string))
+		profile, err := a.UserProfile(userID.(string))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch profile"})
 			return

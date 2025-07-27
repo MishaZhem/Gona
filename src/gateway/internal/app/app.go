@@ -62,15 +62,25 @@ func (a *App) ValidateToken(token string) (string, error) {
 	return resp.UserId, nil
 }
 
-func (a *App) userProfile(userId string) (string, error) {
+type User struct {
+	ID       string `json:"id"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+}
+
+func (a *App) UserProfile(userId string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), a.timeout)
 	defer cancel()
 
-	resp, err := a.userClient.ValidateToken(ctx, &userpb.TokenRequest{
-		Token: token,
+	resp, err := a.userClient.Profile(ctx, &userpb.ProfileRequest{
+		UserId: userId,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return resp.UserId, nil
+	return &User{
+		ID:       resp.UserId,
+		Email:    resp.Email,
+		Username: resp.Email,
+	}, nil
 }
