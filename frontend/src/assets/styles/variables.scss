@@ -18,6 +18,7 @@
   --background-accent-1-pressed: #314692;
   --background-elevation-1: #fff;
   --background-invisible: rgba(0, 0, 0, 0);
+  background-color: var(--background-base-alt);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -41,6 +42,7 @@
     --background-accent-1-pressed: #314692;
     --background-elevation-1: #fff;
     --background-invisible: rgba(0, 0, 0, 0);
+    background-color: var(--background-base-alt);
   }
 }
 

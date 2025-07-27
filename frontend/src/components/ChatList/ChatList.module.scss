@@ -12,6 +12,7 @@
   position: fixed;
   bottom: 2rem;
   right: 2rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 
   @media (max-width: 760px) {
     bottom: 0;

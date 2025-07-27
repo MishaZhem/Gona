@@ -1,6 +1,7 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { Login, Main, Profile } from './pages'
 import Template from './Template'
+import ProtectedRoute from './AuthorizedRoute'
 
 export default function Router() {
     const routing = createBrowserRouter(
@@ -10,22 +11,27 @@ export default function Router() {
                 element: <Template />,
                 children: [
                     {
-                        path: '/',
+                        index: true,
                         element: (
                             <Main />
                         ),
                     },
                     {
-                        path: '/login',
+                        path: 'login',
                         element: (
                             <Login />
                         ),
                     },
                     {
-                        path: '/profile',
-                        element: (
-                            <Profile />
-                        ),
+                        element: <ProtectedRoute />,
+                        children: [
+                            {
+                                path: 'profile',
+                                element: (
+                                    <Profile />
+                                ),
+                            },
+                        ],
                     },
                 ],
             },

@@ -3,6 +3,7 @@ import styles from './Login.module.scss';
 import axios from 'axios';
 import { api } from '../../app/axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 function Login() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -10,6 +11,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,6 +25,8 @@ function Login() {
         ...(mode === 'register' ? { name } : {}),
       });
       if (mode === 'login') {
+        const profile = await api.get('/profile');
+        setUser(profile.data);
         navigate("/profile")
       } else {
         setMode('login')
@@ -69,6 +73,7 @@ function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="username"
           />
           <input
             type="password"
@@ -76,6 +81,7 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete="current-password"
           />
           <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
           {error && <p className={styles.error}>{error}</p>}
