@@ -64,7 +64,7 @@ const getUserByIdQuery = `SELECT id, email, username, password_hash, created_at
 	WHERE id = $1`
 
 func (q *Queries) GetUserById(ctx context.Context, id string) (*domain.User, error) {
-	row := q.pool.QueryRow(ctx, getUserByEmailQuery, id)
+	row := q.pool.QueryRow(ctx, getUserByIdQuery, id)
 	var user domain.User
 	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.CreatedAt)
 	if err != nil {
