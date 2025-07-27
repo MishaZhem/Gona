@@ -1,5 +1,5 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import { Login, Main } from './pages'
+import { Login, Main, Profile } from './pages'
 import Template from './Template'
 
 export default function Router() {
@@ -19,6 +19,12 @@ export default function Router() {
                         path: '/login',
                         element: (
                             <Login />
+                        ),
+                    },
+                    {
+                        path: '/profile',
+                        element: (
+                            <Profile />
                         ),
                     },
                 ],

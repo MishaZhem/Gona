@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from './Login.module.scss';
 import axios from 'axios';
 import { api } from '../../app/axios';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -9,19 +10,23 @@ function Login() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const res = await api.post(mode, {
+      await api.post("/" + mode, {
         email,
         password,
         ...(mode === 'register' ? { name } : {}),
       });
-      alert(`${mode === 'login' ? 'Logged in' : 'Registered'} successfully`);
-      alert(res.data)
+      if (mode === 'login') {
+        navigate("/profile")
+      } else {
+        setMode('login')
+      }
     } catch (err: any) {
       if (axios.isAxiosError(err) && err.response) {
         setError(err.response.data.message || 'Something went wrong');
