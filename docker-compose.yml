@@ -6,6 +6,10 @@ services:
       - GRPC_PORT=50051
       - POSTGRES_URL=postgres://postgres:postgres@userservice_db:5432/userdb?sslmode=disable
       - JWT_SECRET=SomeHardAndSecretWord
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=GonaGona
+      - MINIO_BUCKET=avatars
     depends_on:
       - userservice_db
     ports:
@@ -31,7 +35,7 @@ services:
     build:
       context: ./src/supportchat
     ports:
-      - "9000:9000"
+      - "9100:9000"
     environment:
       - REDIS_ADDR=redis:6379
       - SUPPORTCHAT_PORT=9000
@@ -60,6 +64,22 @@ services:
     networks:
       - app-network
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9200:9000" 
+      - "9201:9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: GonaGona
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+
   migrate:
     image: migrate/migrate
     volumes:
@@ -79,3 +99,6 @@ services:
 
 networks:
   app-network:
+
+volumes:
+  minio-data:

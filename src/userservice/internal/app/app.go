@@ -3,22 +3,25 @@ package app
 import (
 	"context"
 	"errors"
+	"io"
 	"time"
 
 	"github.com/MishaZhem/Gona/src/userservice/internal/domain"
-	"github.com/MishaZhem/Gona/src/userservice/internal/repository"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/minio/minio-go/v7"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Program struct {
-	repo       repository.Repository
+type Service struct {
+	repo       UserRepository
 	jwtService *JWTService
 	logger     *log.Logger
+	minio      *minio.Client
+	bucket     string
 }
 
 type App interface {
@@ -26,6 +29,19 @@ type App interface {
 	Login(ctx context.Context, email, password string) (string, error)
 	ValidateToken(token string) (string, error)
 	Profile(ctx context.Context, userId string) (*domain.User, error)
+}
+
+type UserRepository interface {
+	CreateUser(ctx context.Context, user *domain.User) error
+	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetUserById(ctx context.Context, id string) (*domain.User, error)
+	IsEmailTaken(ctx context.Context, email string) (bool, error)
+}
+
+type StorageRepository interface {
+	UploadFile(bucket string, objectName string, data io.Reader, size int64, contentType string) error
+	GetFileURL(bucket string, objectName string) (string, error)
+	DeleteFile(bucket string, objectName string) error
 }
 
 type JWTService struct {
@@ -36,11 +52,14 @@ type JWTService struct {
 var ErrEmailTaken = errors.New("email is already taken")
 var ErrInvalid = errors.New("invalid email or password")
 
-func NewApp(authRepository repository.Repository, jwtService *JWTService, logger *log.Logger) App {
-	return &Program{
+func NewApp(authRepository UserRepository, jwtService *JWTService, logger *log.Logger, minioClient *minio.Client,
+	bucket string) App {
+	return &Service{
 		repo:       authRepository,
 		jwtService: jwtService,
 		logger:     logger,
+		minio:      minioClient,
+		bucket:     bucket,
 	}
 }
 
@@ -48,7 +67,7 @@ func NewJWTService(secretKey string, ttl time.Duration) *JWTService {
 	return &JWTService{secretKey: secretKey, ttl: ttl}
 }
 
-func (r *Program) Register(ctx context.Context, username, email, password string) error {
+func (r *Service) Register(ctx context.Context, username, email, password string) error {
 	r.logger.Infof("Trying to register user: %s", email)
 	taken, err := r.repo.IsEmailTaken(ctx, email)
 	if err != nil {
@@ -77,7 +96,7 @@ func (r *Program) Register(ctx context.Context, username, email, password string
 	return r.repo.CreateUser(ctx, user)
 }
 
-func (r *Program) Login(ctx context.Context, email, password string) (string, error) {
+func (r *Service) Login(ctx context.Context, email, password string) (string, error) {
 	user, err := r.repo.GetUserByEmail(ctx, email)
 	if err != nil {
 		r.logger.Warnf("User not found: %s", email)
@@ -100,7 +119,7 @@ func (r *Program) Login(ctx context.Context, email, password string) (string, er
 	return token, nil
 }
 
-func (r *Program) Profile(ctx context.Context, userId string) (*domain.User, error) {
+func (r *Service) Profile(ctx context.Context, userId string) (*domain.User, error) {
 	r.logger.Infof("Trying to take profile of user: %s", userId)
 	user, err := r.repo.GetUserById(ctx, userId)
 	if err != nil {
@@ -111,7 +130,7 @@ func (r *Program) Profile(ctx context.Context, userId string) (*domain.User, err
 	return user, nil
 }
 
-func (r *Program) ValidateToken(token string) (string, error) {
+func (r *Service) ValidateToken(token string) (string, error) {
 	return r.jwtService.ValidateToken(token)
 }
 

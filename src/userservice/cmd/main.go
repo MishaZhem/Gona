@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/MishaZhem/Gona/src/userservice/internal/adapters/postgres"
 	"github.com/MishaZhem/Gona/src/userservice/internal/app"
 	grpcPort "github.com/MishaZhem/Gona/src/userservice/internal/ports/grpc"
-	"github.com/MishaZhem/Gona/src/userservice/internal/repository"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	log "github.com/sirupsen/logrus"
@@ -35,7 +35,7 @@ func main() {
 
 	defer pool.Close()
 
-	repo := repository.NewRepository(pool, logger)
+	repo := postgres.NewUserRepository(pool, logger)
 	tokenService := app.NewJWTService(secretKey, tokenTTL)
 	app := app.NewApp(repo, tokenService, logger)
 
