@@ -12,7 +12,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/minio/minio-go/v7"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,8 +19,7 @@ type Service struct {
 	repo       UserRepository
 	jwtService *JWTService
 	logger     *log.Logger
-	minio      *minio.Client
-	bucket     string
+	minio      StorageRepository
 }
 
 type App interface {
@@ -52,14 +50,12 @@ type JWTService struct {
 var ErrEmailTaken = errors.New("email is already taken")
 var ErrInvalid = errors.New("invalid email or password")
 
-func NewApp(authRepository UserRepository, jwtService *JWTService, logger *log.Logger, minioClient *minio.Client,
-	bucket string) App {
+func NewApp(authRepository UserRepository, jwtService *JWTService, logger *log.Logger, minioClient StorageRepository) App {
 	return &Service{
 		repo:       authRepository,
 		jwtService: jwtService,
 		logger:     logger,
 		minio:      minioClient,
-		bucket:     bucket,
 	}
 }
 

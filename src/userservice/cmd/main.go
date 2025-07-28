@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/MishaZhem/Gona/src/userservice/internal/adapters/minio"
 	"github.com/MishaZhem/Gona/src/userservice/internal/adapters/postgres"
 	"github.com/MishaZhem/Gona/src/userservice/internal/app"
 	grpcPort "github.com/MishaZhem/Gona/src/userservice/internal/ports/grpc"
@@ -35,9 +36,16 @@ func main() {
 
 	defer pool.Close()
 
+	endpoint := "play.min.io"
+	accessKeyID := "Q3AM3UQ867SPQQA43P2F"
+	secretAccessKey := "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+	useSSL := true
+
+	minioClient := minio.NewStorageRepository(endpoint, accessKeyID, secretAccessKey, useSSL, logger)
+
 	repo := postgres.NewUserRepository(pool, logger)
 	tokenService := app.NewJWTService(secretKey, tokenTTL)
-	app := app.NewApp(repo, tokenService, logger)
+	app := app.NewApp(repo, tokenService, logger, minioClient)
 
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
