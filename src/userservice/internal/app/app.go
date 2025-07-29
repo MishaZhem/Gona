@@ -16,10 +16,11 @@ import (
 )
 
 type Service struct {
-	repo       UserRepository
-	jwtService *JWTService
-	logger     *log.Logger
-	minio      StorageRepository
+	repo          UserRepository
+	jwtService    *JWTService
+	logger        *log.Logger
+	minio         StorageRepository
+	bucketAvatars string
 }
 
 type App interface {
@@ -37,9 +38,9 @@ type UserRepository interface {
 }
 
 type StorageRepository interface {
-	UploadFile(bucket string, objectName string, data io.Reader, size int64, contentType string) error
-	GetFileURL(bucket string, objectName string) (string, error)
-	DeleteFile(bucket string, objectName string) error
+	UploadFile(ctx context.Context, bucket string, objectName string, data io.Reader, size int64) error
+	GetFileURL(ctx context.Context, bucket string, objectName string) (string, error)
+	DeleteFile(ctx context.Context, bucket string, objectName string) error
 }
 
 type JWTService struct {
@@ -128,6 +129,41 @@ func (r *Service) Profile(ctx context.Context, userId string) (*domain.User, err
 
 func (r *Service) ValidateToken(token string) (string, error) {
 	return r.jwtService.ValidateToken(token)
+}
+
+func (r *Service) UploadAvatar(ctx context.Context, userID string, file io.Reader, fileSize int64) (string, error) {
+	objectName := "avatar_" + userID
+	err := r.minio.UploadFile(ctx, r.bucketAvatars, objectName, file, fileSize)
+	if err != nil {
+		r.logger.Warnf("Failed to upload avatar: %s", err)
+		return "", err
+	}
+	url, err := r.GetAvatarPresignedUrl(ctx, userID)
+	if err != nil {
+		r.logger.Warnf("Failed to get avatar: %s", err)
+		return "", err
+	}
+	return url, nil
+}
+
+func (r *Service) GetAvatarPresignedUrl(ctx context.Context, userID string) (string, error) {
+	objectName := "avatar_" + userID
+	url, err := r.minio.GetFileURL(ctx, r.bucketAvatars, objectName)
+	if err != nil {
+		r.logger.Warnf("Failed to get avatar: %s", err)
+		return "", err
+	}
+	return url, nil
+}
+
+func (r *Service) RemoveAvatar(ctx context.Context, userID string) error {
+	objectName := "avatar_" + userID
+	err := r.minio.DeleteFile(ctx, r.bucketAvatars, objectName)
+	if err != nil {
+		r.logger.Warnf("Failed to remove avatar: %s", err)
+		return err
+	}
+	return nil
 }
 
 func (j *JWTService) GenerateToken(userID string, email string) (string, error) {
