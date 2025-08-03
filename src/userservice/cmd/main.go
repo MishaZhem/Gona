@@ -41,11 +41,12 @@ func main() {
 	secretAccessKey := "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
 	useSSL := true
 
+	bucket := "avatars"
 	minioClient := minio.NewStorageRepository(endpoint, accessKeyID, secretAccessKey, useSSL, logger)
 
 	repo := postgres.NewUserRepository(pool, logger)
 	tokenService := app.NewJWTService(secretKey, tokenTTL)
-	app := app.NewApp(repo, tokenService, logger, minioClient)
+	app := app.NewApp(repo, tokenService, logger, minioClient, bucket)
 
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {

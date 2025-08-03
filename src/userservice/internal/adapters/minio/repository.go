@@ -3,7 +3,6 @@ package minio
 import (
 	"context"
 	"io"
-	"time"
 
 	"github.com/MishaZhem/Gona/src/userservice/internal/app"
 	"github.com/minio/minio-go/v7"
@@ -44,6 +43,20 @@ func (m *minioStorage) NewBucket(ctx context.Context, bucket string) error {
 			return err
 		}
 	}
+	policy := `{
+		"Version": "2012-10-17",
+		"Statement": [{
+			"Effect": "Allow",
+			"Principal": "*",
+			"Action": ["s3:GetObject"],
+			"Resource": ["arn:aws:s3:::` + bucket + `/*"]
+		}]
+	}`
+	err = m.client.SetBucketPolicy(ctx, bucket, policy)
+	if err != nil {
+		m.logger.Errorf("Failed to make public bucket: %v", err)
+		return err
+	}
 	return nil
 }
 
@@ -64,23 +77,6 @@ func (m *minioStorage) UploadFile(ctx context.Context, bucket string, objectName
 		return err
 	}
 	return nil
-}
-
-func (m *minioStorage) GetFileURL(ctx context.Context, bucket string, objectName string) (string, error) {
-	expiry := time.Hour * 24
-	presignedURL, err := m.client.PresignedGetObject(
-		ctx,
-		bucket,
-		objectName,
-		expiry,
-		nil,
-	)
-	if err != nil {
-		m.logger.Errorf("Failed to create url for file: %v", err)
-		return "", err
-	}
-
-	return presignedURL.String(), nil
 }
 
 func (m *minioStorage) DeleteFile(ctx context.Context, bucket string, objectName string) error {

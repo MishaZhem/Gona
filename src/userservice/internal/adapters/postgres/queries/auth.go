@@ -15,25 +15,25 @@ var (
 )
 
 const createUserQuery = `
-    INSERT INTO users (id, email, username, password_hash, created_at)
+    INSERT INTO users (id, email, username, password_hash, created_at, avatar)
     VALUES ($1, $2, $3, $4, $5)`
 
 func (q *Queries) CreateUser(ctx context.Context, user *domain.User) error {
 
-	if _, err := q.pool.Exec(ctx, createUserQuery, uuid.Must(uuid.NewRandom()), user.Email, user.Username, user.Password, user.CreatedAt); err != nil {
+	if _, err := q.pool.Exec(ctx, createUserQuery, uuid.Must(uuid.NewRandom()), user.Email, user.Username, user.Password, user.CreatedAt, ""); err != nil {
 		return err
 	}
 	return nil
 }
 
-const getUserByEmailQuery = `SELECT id, email, username, password_hash, created_at
+const getUserByEmailQuery = `SELECT id, email, username, password_hash, created_at, avatar
 	FROM users
 	WHERE email = $1`
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	row := q.pool.QueryRow(ctx, getUserByEmailQuery, email)
 	var user domain.User
-	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.CreatedAt)
+	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.CreatedAt, &user.AvatarURL)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrUserNotFound
@@ -59,14 +59,14 @@ func (q *Queries) IsEmailTaken(ctx context.Context, email string) (bool, error) 
 	return exists, nil
 }
 
-const getUserByIdQuery = `SELECT id, email, username, password_hash, created_at
+const getUserByIdQuery = `SELECT id, email, username, password_hash, created_at, avatar
 	FROM users
 	WHERE id = $1`
 
 func (q *Queries) GetUserById(ctx context.Context, id string) (*domain.User, error) {
 	row := q.pool.QueryRow(ctx, getUserByIdQuery, id)
 	var user domain.User
-	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.CreatedAt)
+	err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password, &user.CreatedAt, &user.AvatarURL)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrUserNotFound
@@ -75,4 +75,48 @@ func (q *Queries) GetUserById(ctx context.Context, id string) (*domain.User, err
 	}
 
 	return &user, nil
+}
+
+const updateUserAvatarQuery = `
+	UPDATE users
+	SET avatar = $1
+	WHERE id = $2
+`
+
+func (q *Queries) UpdateUserAvatar(ctx context.Context, userID, avatarURL string) error {
+	_, err := q.pool.Exec(ctx, updateUserAvatarQuery, avatarURL, userID)
+	return err
+}
+
+const updatePasswordQuery = `
+	UPDATE users
+	SET password_hash = $1
+	WHERE id = $2
+`
+
+func (q *Queries) UpdatePassword(ctx context.Context, userID, newHashedPassword string) error {
+	_, err := q.pool.Exec(ctx, updatePasswordQuery, newHashedPassword, userID)
+	return err
+}
+
+const updateUsernameQuery = `
+	UPDATE users
+	SET password_hash = $1
+	WHERE id = $2
+`
+
+func (q *Queries) UpdateUsername(ctx context.Context, userID, newUsername string) error {
+	_, err := q.pool.Exec(ctx, updateUsernameQuery, newUsername, userID)
+	return err
+}
+
+const updateEmailQuery = `
+	UPDATE users
+	SET password_hash = $1
+	WHERE id = $2
+`
+
+func (q *Queries) UpdateEmail(ctx context.Context, userID, newEmail string) error {
+	_, err := q.pool.Exec(ctx, updateEmailQuery, newEmail, userID)
+	return err
 }
