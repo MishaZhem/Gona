@@ -3,11 +3,19 @@ syntax = "proto3";
 package user;
 option go_package = "github.com/MishaZhem/Gona/proto/user;userpb";
 
+import "google/protobuf/empty.proto";
+
 service UserService {
-  rpc Register(RegisterRequest) returns (Empty) {}
+  rpc Register(RegisterRequest) returns (google.protobuf.Empty) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc ValidateToken(TokenRequest) returns (TokenResponse) {}
   rpc Profile(ProfileRequest) returns (ProfileResponse) {}
+  rpc UploadAvatar(UploadAvatarRequest) returns (UploadAvatarResponse) {}
+  rpc RemoveAvatar(RemoveAvatarRequest) returns (google.protobuf.Empty) {}
+  rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty) {}
+  rpc ChangeEmail(ChangeEmailRequest) returns (google.protobuf.Empty) {}
+  rpc ChangeUsername(ChangeUsernameRequest) returns (google.protobuf.Empty) {}
+
 }
 
 message RegisterRequest {
@@ -41,6 +49,36 @@ message ProfileResponse {
   string userId = 1;
   string email = 2;
   string username = 3;
+  string avatar = 4;
 }
 
-message Empty {}
+message RemoveAvatarRequest {
+  string userId = 1;
+}
+
+
+message ChangePasswordRequest {
+  string userId = 1;
+  string oldPassword = 2;
+  string newPassword = 3;
+}
+
+message ChangeEmailRequest {
+  string userId = 1;
+  string newEmail = 2;
+}
+
+message ChangeUsernameRequest {
+  string userId = 1;
+  string newUsername = 2;
+}
+
+message UploadAvatarRequest {
+  string userId = 1;
+  bytes avatarData = 2; 
+  int64 fileSize = 3;
+}
+
+message UploadAvatarResponse {
+  string url = 1;
+}

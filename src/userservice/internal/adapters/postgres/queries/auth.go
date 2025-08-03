@@ -16,7 +16,7 @@ var (
 
 const createUserQuery = `
     INSERT INTO users (id, email, username, password_hash, created_at, avatar)
-    VALUES ($1, $2, $3, $4, $5)`
+    VALUES ($1, $2, $3, $4, $5, $6)`
 
 func (q *Queries) CreateUser(ctx context.Context, user *domain.User) error {
 

@@ -32,6 +32,7 @@ type App interface {
 	UploadAvatar(ctx context.Context, userID string, file io.Reader, fileSize int64) (string, error)
 	GetAvatarUrl(ctx context.Context, userID string) string
 	RemoveAvatar(ctx context.Context, userID string) error
+	ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error
 	ChangeEmail(ctx context.Context, userID, newEmail string) error
 	ChangeUsername(ctx context.Context, userID, newUsername string) error
 }
