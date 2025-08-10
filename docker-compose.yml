@@ -65,6 +65,18 @@ services:
     networks:
       - app-network
 
+  productcatalog_db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: catalogdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+
   minio:
     image: minio/minio
     container_name: minio
