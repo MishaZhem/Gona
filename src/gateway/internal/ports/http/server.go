@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/MishaZhem/Gona/src/gateway/internal/app"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,6 +45,16 @@ func (s *Server) Handler() http.Handler {
 	a := gin.New()
 	a.Use(CustomLogger)
 	a.Use(gin.Recovery())
+
+	a.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	AppRouter(&a.RouterGroup, s.app)
 	return a
 }

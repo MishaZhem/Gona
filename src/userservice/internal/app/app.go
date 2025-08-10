@@ -3,10 +3,11 @@ package app
 import (
 	"context"
 	"errors"
+	"io"
+	"os"
 	"time"
 
 	"github.com/MishaZhem/Gona/src/userservice/internal/domain"
-	"github.com/MishaZhem/Gona/src/userservice/internal/repository"
 
 	log "github.com/sirupsen/logrus"
 
@@ -15,16 +16,41 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Program struct {
-	repo       repository.Repository
-	jwtService *JWTService
-	logger     *log.Logger
+type Service struct {
+	repo          UserRepository
+	jwtService    *JWTService
+	logger        *log.Logger
+	minio         StorageRepository
+	bucketAvatars string
 }
 
 type App interface {
 	Register(ctx context.Context, username, email, password string) error
 	Login(ctx context.Context, email, password string) (string, error)
 	ValidateToken(token string) (string, error)
+	Profile(ctx context.Context, userId string) (*domain.User, error)
+	UploadAvatar(ctx context.Context, userID string, file io.Reader, fileSize int64, contentType string) (string, error)
+	GetAvatarUrl(ctx context.Context, userID string) string
+	RemoveAvatar(ctx context.Context, userID string) error
+	ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error
+	ChangeEmail(ctx context.Context, userID, newEmail string) error
+	ChangeUsername(ctx context.Context, userID, newUsername string) error
+}
+
+type UserRepository interface {
+	CreateUser(ctx context.Context, user *domain.User) error
+	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetUserById(ctx context.Context, id string) (*domain.User, error)
+	IsEmailTaken(ctx context.Context, email string) (bool, error)
+	UpdatePassword(ctx context.Context, userID, newHashedPassword string) error
+	UpdateUsername(ctx context.Context, userID, newUsername string) error
+	UpdateEmail(ctx context.Context, userID, newEmail string) error
+	UpdateUserAvatar(ctx context.Context, userID, avatarURL string) error
+}
+
+type StorageRepository interface {
+	UploadFile(ctx context.Context, bucket string, objectName string, data io.Reader, size int64, contentType string) error
+	DeleteFile(ctx context.Context, bucket string, objectName string) error
 }
 
 type JWTService struct {
@@ -35,11 +61,13 @@ type JWTService struct {
 var ErrEmailTaken = errors.New("email is already taken")
 var ErrInvalid = errors.New("invalid email or password")
 
-func NewApp(authRepository repository.Repository, jwtService *JWTService, logger *log.Logger) App {
-	return &Program{
-		repo:       authRepository,
-		jwtService: jwtService,
-		logger:     logger,
+func NewApp(authRepository UserRepository, jwtService *JWTService, logger *log.Logger, minioClient StorageRepository, bucketAvatars string) App {
+	return &Service{
+		repo:          authRepository,
+		jwtService:    jwtService,
+		logger:        logger,
+		minio:         minioClient,
+		bucketAvatars: bucketAvatars,
 	}
 }
 
@@ -47,7 +75,7 @@ func NewJWTService(secretKey string, ttl time.Duration) *JWTService {
 	return &JWTService{secretKey: secretKey, ttl: ttl}
 }
 
-func (r *Program) Register(ctx context.Context, username, email, password string) error {
+func (r *Service) Register(ctx context.Context, username, email, password string) error {
 	r.logger.Infof("Trying to register user: %s", email)
 	taken, err := r.repo.IsEmailTaken(ctx, email)
 	if err != nil {
@@ -70,14 +98,14 @@ func (r *Program) Register(ctx context.Context, username, email, password string
 		Username:  username,
 		Password:  string(hashPassword),
 		CreatedAt: time.Now(),
+		AvatarURL: "",
 	}
 
 	r.logger.Infof("User successfully registered: %s", email)
 	return r.repo.CreateUser(ctx, user)
 }
 
-func (r *Program) Login(ctx context.Context, email, password string) (string, error) {
-	r.logger.Infof("Trying to login user: %s", email)
+func (r *Service) Login(ctx context.Context, email, password string) (string, error) {
 	user, err := r.repo.GetUserByEmail(ctx, email)
 	if err != nil {
 		r.logger.Warnf("User not found: %s", email)
@@ -100,8 +128,76 @@ func (r *Program) Login(ctx context.Context, email, password string) (string, er
 	return token, nil
 }
 
-func (r *Program) ValidateToken(token string) (string, error) {
+func (r *Service) Profile(ctx context.Context, userId string) (*domain.User, error) {
+	r.logger.Infof("Trying to take profile of user: %s", userId)
+	user, err := r.repo.GetUserById(ctx, userId)
+	if err != nil {
+		r.logger.Warnf("User not found: %s", userId)
+		return nil, err
+	}
+	r.logger.Infof("User successfully got profile: %s", userId)
+	return user, nil
+}
+
+func (r *Service) ValidateToken(token string) (string, error) {
 	return r.jwtService.ValidateToken(token)
+}
+
+func (r *Service) UploadAvatar(ctx context.Context, userID string, file io.Reader, fileSize int64, contentType string) (string, error) {
+	objectName := userID
+	err := r.minio.UploadFile(ctx, r.bucketAvatars, objectName, file, fileSize, contentType)
+	if err != nil {
+		r.logger.Warnf("Failed to upload avatar: %s", err)
+		return "", err
+	}
+	url := r.GetAvatarUrl(ctx, userID)
+	r.logger.Infof("get avatar url: %v", url)
+	err = r.repo.UpdateUserAvatar(ctx, userID, url)
+	if err != nil {
+		r.logger.Errorf("UpdateUserAvatar failed: %v", err)
+		return "", nil
+	}
+	r.logger.Infof("upload user avatar url: %v", url)
+	return url, nil
+}
+
+func (r *Service) GetAvatarUrl(ctx context.Context, userID string) string {
+	host := os.Getenv("MINIO_PUBLIC_ENDPOINT")
+	objectName := userID
+	return host + "/" + r.bucketAvatars + "/" + objectName
+}
+
+func (r *Service) RemoveAvatar(ctx context.Context, userID string) error {
+	objectName := userID
+	err := r.minio.DeleteFile(ctx, r.bucketAvatars, objectName)
+	if err != nil {
+		r.logger.Warnf("Failed to remove avatar: %s", err)
+		return err
+	}
+	return nil
+}
+
+func (s *Service) ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error {
+	user, err := s.repo.GetUserById(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
+		return ErrInvalid
+	}
+	hashed, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	return s.repo.UpdatePassword(ctx, userID, string(hashed))
+}
+
+func (s *Service) ChangeUsername(ctx context.Context, userID, newUsername string) error {
+	return s.repo.UpdateUsername(ctx, userID, newUsername)
+}
+
+func (s *Service) ChangeEmail(ctx context.Context, userID, newEmail string) error {
+	return s.repo.UpdateEmail(ctx, userID, newEmail)
 }
 
 func (j *JWTService) GenerateToken(userID string, email string) (string, error) {

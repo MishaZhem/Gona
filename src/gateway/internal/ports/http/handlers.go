@@ -2,8 +2,8 @@ package http
 
 import (
 	"errors"
+	"io"
 	"net/http"
-	"strings"
 
 	"github.com/MishaZhem/Gona/src/gateway/internal/app"
 	"github.com/gin-gonic/gin"
@@ -55,29 +55,98 @@ func login(a app.App) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, TokenResponse(token))
+		c.SetCookie(
+			"access_token",
+			token,
+			3600,
+			"/",
+			"",
+			true,
+			true,
+		)
+
+		c.JSON(http.StatusOK, gin.H{"message": "login successful"})
 	}
 }
 
-func validateToken(a app.App) gin.HandlerFunc {
+func logout() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if !strings.HasPrefix(authHeader, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, ErrorResponse(ErrNoToken))
-			return
-		}
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		if token == "" {
-			c.JSON(http.StatusUnauthorized, ErrorResponse(ErrNoToken))
+		c.SetCookie(
+			"access_token",
+			"",
+			-1,
+			"/",
+			"",
+			true,
+			true,
+		)
+
+		c.JSON(http.StatusOK, gin.H{"message": "logged out"})
+	}
+}
+
+func userProfile(a app.App) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID, ok := c.Get("userID")
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "userID missing"})
 			return
 		}
 
-		userID, err := a.ValidateToken(token)
+		profile, err := a.UserProfile(userID.(string))
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, ErrorResponse(err))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch profile"})
 			return
 		}
 
-		c.JSON(http.StatusOK, UserIdResponse(userID))
+		c.JSON(http.StatusOK, profile)
+	}
+}
+
+func uploadAvatar(a app.App) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID, ok := c.Get("userID")
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "userID missing"})
+			return
+		}
+
+		file, _, err := c.Request.FormFile("avatar")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file"})
+			return
+		}
+		defer file.Close()
+
+		fileBytes, err := io.ReadAll(file)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+			return
+		}
+		fileSize := int64(len(fileBytes))
+
+		probe := fileBytes
+		if len(probe) > 512 {
+			probe = probe[:512]
+		}
+		contentType := http.DetectContentType(probe)
+
+		allowed := map[string]bool{
+			"image/png":  true,
+			"image/jpeg": true,
+			"image/webp": true,
+		}
+		if !allowed[contentType] {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported file type"})
+			return
+		}
+
+		url, err := a.ChangeAvatar(userID.(string), fileBytes, fileSize, contentType)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload file"})
+			return
+		}
+
+		c.JSON(http.StatusOK, url)
 	}
 }

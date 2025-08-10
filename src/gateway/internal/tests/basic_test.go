@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // / MockUserServiceClient mocks user.UserServiceClient
@@ -18,9 +19,9 @@ type MockUserServiceClient struct {
 	userpb.UserServiceClient
 }
 
-func (m *MockUserServiceClient) Register(ctx context.Context, in *userpb.RegisterRequest, opts ...grpc.CallOption) (*userpb.Empty, error) {
+func (m *MockUserServiceClient) Register(ctx context.Context, in *userpb.RegisterRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	args := m.Called(ctx, in)
-	return &userpb.Empty{}, args.Error(1)
+	return &emptypb.Empty{}, args.Error(1)
 }
 
 func (m *MockUserServiceClient) Login(ctx context.Context, in *userpb.LoginRequest, opts ...grpc.CallOption) (*userpb.LoginResponse, error) {
@@ -43,7 +44,7 @@ func TestRegister(t *testing.T) {
 		Password: "pass",
 	}
 
-	mockClient.On("Register", mock.Anything, req).Return(&userpb.Empty{}, nil)
+	mockClient.On("Register", mock.Anything, req).Return(&emptypb.Empty{}, nil)
 
 	err := a.Register("testuser", "test@example.com", "pass")
 	assert.NoError(t, err)

@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
+
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/MishaZhem/Gona/src/userservice/internal/adapters/minio"
+	"github.com/MishaZhem/Gona/src/userservice/internal/adapters/postgres"
 	"github.com/MishaZhem/Gona/src/userservice/internal/app"
 	grpcPort "github.com/MishaZhem/Gona/src/userservice/internal/ports/grpc"
-	"github.com/MishaZhem/Gona/src/userservice/internal/repository"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	log "github.com/sirupsen/logrus"
@@ -35,9 +38,20 @@ func main() {
 
 	defer pool.Close()
 
-	repo := repository.NewRepository(pool, logger)
+	endpoint := getEnv("MINIO_ENDPOINT", "http://minio:9000")
+	accessKeyID := getEnv("MINIO_ACCESS_KEY", "admin")
+	secretAccessKey := getEnv("MINIO_SECRET_KEY", "GonaGona")
+	bucket := getEnv("MINIO_BUCKET", "avatars")
+	useSSL := false
+	if strings.HasPrefix(endpoint, "https://") {
+		useSSL = true
+	}
+
+	minioClient := minio.NewStorageRepository(endpoint, accessKeyID, secretAccessKey, useSSL, logger)
+
+	repo := postgres.NewUserRepository(pool, logger)
 	tokenService := app.NewJWTService(secretKey, tokenTTL)
-	app := app.NewApp(repo, tokenService, logger)
+	app := app.NewApp(repo, tokenService, logger, minioClient, bucket)
 
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {

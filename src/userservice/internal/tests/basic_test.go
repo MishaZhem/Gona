@@ -1,7 +1,9 @@
 package app_test
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"testing"
 	"time"
 
@@ -35,6 +37,50 @@ func (m *MockRepo) GetUserByEmail(ctx context.Context, email string) (*domain.Us
 	return args.Get(0).(*domain.User), args.Error(1)
 }
 
+func (m *MockRepo) GetUserById(ctx context.Context, id string) (*domain.User, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(*domain.User), args.Error(1)
+}
+
+func (m *MockRepo) UpdatePassword(ctx context.Context, userID, newHashedPassword string) error {
+	args := m.Called(ctx, userID, newHashedPassword)
+	return args.Error(0)
+}
+
+func (m *MockRepo) UpdateUsername(ctx context.Context, userID, newUsername string) error {
+	args := m.Called(ctx, userID, newUsername)
+	return args.Error(0)
+}
+
+func (m *MockRepo) UpdateEmail(ctx context.Context, userID, newEmail string) error {
+	args := m.Called(ctx, userID, newEmail)
+	return args.Error(0)
+}
+
+func (m *MockRepo) UpdateUserAvatar(ctx context.Context, userID, avatarURL string) error {
+	args := m.Called(ctx, userID, avatarURL)
+	return args.Error(0)
+}
+
+type MockStorage struct {
+	mock.Mock
+}
+
+func (m *MockStorage) UploadFile(ctx context.Context, bucket, objectName string, data io.Reader, size int64, contentType string) error {
+	args := m.Called(ctx, bucket, objectName, data, size, contentType)
+	return args.Error(0)
+}
+
+func (m *MockStorage) GetFileURL(ctx context.Context, bucket, objectId string) (string, error) {
+	args := m.Called(ctx, bucket, objectId)
+	return args.String(0), args.Error(1)
+}
+
+func (m *MockStorage) DeleteFile(ctx context.Context, bucket, objectId string) error {
+	args := m.Called(ctx, bucket, objectId)
+	return args.Error(0)
+}
+
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
@@ -42,9 +88,10 @@ func HashPassword(password string) (string, error) {
 
 func TestRegister(t *testing.T) {
 	mockRepo := new(MockRepo)
+	mockStorage := new(MockStorage)
 	jwtService := app.NewJWTService("secret", time.Hour)
 	logger := log.New()
-	testApp := app.NewApp(mockRepo, jwtService, logger)
+	testApp := app.NewApp(mockRepo, jwtService, logger, mockStorage, "test-bucket")
 
 	email := "test@example.com"
 	username := "testuser"
@@ -61,13 +108,14 @@ func TestRegister(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	mockRepo := new(MockRepo)
+	mockStorage := new(MockStorage)
 	jwtService := app.NewJWTService("test-secret", time.Hour)
 	logger := log.New()
-	testApp := app.NewApp(mockRepo, jwtService, logger)
+	testApp := app.NewApp(mockRepo, jwtService, logger, mockStorage, "test-bucket")
 
 	email := "test@example.com"
 	password := "password123"
-	hashed, _ := HashPassword(password) // helper
+	hashed, _ := HashPassword(password)
 
 	user := &domain.User{
 		ID:        uuid.New(),
@@ -95,4 +143,57 @@ func TestValidateToken(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "123", userID)
+}
+
+func TestUploadAvatar(t *testing.T) {
+	t.Setenv("MINIO_PUBLIC_ENDPOINT", "http://localhost")
+
+	mockRepo := new(MockRepo)
+	mockStorage := new(MockStorage)
+	logger := log.New()
+	jwtService := app.NewJWTService("secret", time.Hour)
+
+	testApp := app.NewApp(mockRepo, jwtService, logger, mockStorage, "test-bucket")
+
+	data := bytes.NewReader([]byte("image-bytes"))
+	userID := "user123"
+	fileSize := int64(data.Len())
+	contentType := "image/jpeg"
+
+	expectedObject := userID
+	expectedURL := "http://localhost/test-bucket/" + userID
+
+	mockStorage.
+		On("UploadFile", mock.Anything, "test-bucket", expectedObject, mock.Anything, fileSize, contentType).
+		Return(nil)
+
+	mockRepo.
+		On("UpdateUserAvatar", mock.Anything, userID, expectedURL).
+		Return(nil)
+
+	url, err := testApp.UploadAvatar(context.Background(), userID, data, fileSize, contentType)
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedURL, url)
+
+	mockStorage.AssertExpectations(t)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestDeleteAvatar(t *testing.T) {
+	mockRepo := new(MockRepo)
+	mockStorage := new(MockStorage)
+	jwtService := app.NewJWTService("secret", time.Hour)
+	logger := log.New()
+
+	testApp := app.NewApp(mockRepo, jwtService, logger, mockStorage, "test-bucket")
+
+	objectId := "avatars/user123"
+
+	mockStorage.On("DeleteFile", mock.Anything, "test-bucket", objectId).Return(nil)
+
+	err := testApp.RemoveAvatar(context.Background(), objectId)
+	assert.NoError(t, err)
+
+	mockStorage.AssertExpectations(t)
 }
