@@ -54,12 +54,12 @@ func (s *Server) Profile(ctx context.Context, req *userpb.ProfileRequest) (*user
 	if err != nil {
 		return &userpb.ProfileResponse{UserId: ""}, status.Error(getStatusByError(err), err.Error())
 	}
-	return &userpb.ProfileResponse{UserId: user.ID.String(), Username: user.Username, Email: user.Email}, nil
+	return &userpb.ProfileResponse{UserId: user.ID.String(), Username: user.Username, Email: user.Email, Avatar: user.AvatarURL}, nil
 }
 
 func (s *Server) UploadAvatar(ctx context.Context, req *userpb.UploadAvatarRequest) (*userpb.UploadAvatarResponse, error) {
 	reader := bytes.NewReader(req.AvatarData)
-	url, err := s.app.UploadAvatar(ctx, req.UserId, reader, req.FileSize)
+	url, err := s.app.UploadAvatar(ctx, req.UserId, reader, req.FileSize, req.ContentType)
 	if err != nil {
 		return nil, status.Error(getStatusByError(err), err.Error())
 	}

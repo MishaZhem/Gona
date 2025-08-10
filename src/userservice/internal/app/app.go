@@ -29,7 +29,7 @@ type App interface {
 	Login(ctx context.Context, email, password string) (string, error)
 	ValidateToken(token string) (string, error)
 	Profile(ctx context.Context, userId string) (*domain.User, error)
-	UploadAvatar(ctx context.Context, userID string, file io.Reader, fileSize int64) (string, error)
+	UploadAvatar(ctx context.Context, userID string, file io.Reader, fileSize int64, contentType string) (string, error)
 	GetAvatarUrl(ctx context.Context, userID string) string
 	RemoveAvatar(ctx context.Context, userID string) error
 	ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error
@@ -49,7 +49,7 @@ type UserRepository interface {
 }
 
 type StorageRepository interface {
-	UploadFile(ctx context.Context, bucket string, objectName string, data io.Reader, size int64) error
+	UploadFile(ctx context.Context, bucket string, objectName string, data io.Reader, size int64, contentType string) error
 	DeleteFile(ctx context.Context, bucket string, objectName string) error
 }
 
@@ -143,29 +143,32 @@ func (r *Service) ValidateToken(token string) (string, error) {
 	return r.jwtService.ValidateToken(token)
 }
 
-func (r *Service) UploadAvatar(ctx context.Context, userID string, file io.Reader, fileSize int64) (string, error) {
-	objectName := "avatar_" + userID
-	err := r.minio.UploadFile(ctx, r.bucketAvatars, objectName, file, fileSize)
+func (r *Service) UploadAvatar(ctx context.Context, userID string, file io.Reader, fileSize int64, contentType string) (string, error) {
+	objectName := userID
+	err := r.minio.UploadFile(ctx, r.bucketAvatars, objectName, file, fileSize, contentType)
 	if err != nil {
 		r.logger.Warnf("Failed to upload avatar: %s", err)
 		return "", err
 	}
 	url := r.GetAvatarUrl(ctx, userID)
+	r.logger.Infof("get avatar url: %v", url)
 	err = r.repo.UpdateUserAvatar(ctx, userID, url)
 	if err != nil {
+		r.logger.Errorf("UpdateUserAvatar failed: %v", err)
 		return "", nil
 	}
+	r.logger.Infof("upload user avatar url: %v", url)
 	return url, nil
 }
 
 func (r *Service) GetAvatarUrl(ctx context.Context, userID string) string {
 	host := os.Getenv("MINIO_PUBLIC_ENDPOINT")
-	objectName := "avatar_" + userID
+	objectName := userID
 	return host + "/" + r.bucketAvatars + "/" + objectName
 }
 
 func (r *Service) RemoveAvatar(ctx context.Context, userID string) error {
-	objectName := "avatar_" + userID
+	objectName := userID
 	err := r.minio.DeleteFile(ctx, r.bucketAvatars, objectName)
 	if err != nil {
 		r.logger.Warnf("Failed to remove avatar: %s", err)

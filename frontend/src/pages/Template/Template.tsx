@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom"
+import { Link, Outlet, useNavigate } from "react-router-dom"
 import { useAuth } from "../../hooks/useAuth";
 import styles from './Template.module.scss'
 
@@ -14,17 +14,22 @@ function Template() {
     return (
         <>
             <header className={styles.header}>
-                <h1>Gona</h1>
-                {user && (
-                    <button onClick={handleLogout}>
-                        Logout
-                    </button>
-                )}
+                <Link to="/"><h1>Gona</h1></Link>
+                <div className={styles.rightBar}>
+                    {user && (
+                        <Link to="/profile">
+                            <img src={user?.avatar} alt="avatar" className={styles.avatar} />
+                        </Link>
+
+                    )}
+                    {user && (
+                        <button onClick={handleLogout}>
+                            Logout
+                        </button>
+                    )}
+                </div>
             </header>
-            <div>
-                <h1>This is website for Gona</h1>
-                <Outlet></Outlet>
-            </div>
+            <Outlet></Outlet>
         </>
     )
 }

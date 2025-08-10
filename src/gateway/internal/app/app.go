@@ -63,9 +63,10 @@ func (a *App) ValidateToken(token string) (string, error) {
 }
 
 type User struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
+	ID        string `json:"id"`
+	Email     string `json:"email"`
+	Username  string `json:"username"`
+	AvatarURL string `json:"avatar_url"`
 }
 
 func (a *App) UserProfile(userId string) (*User, error) {
@@ -79,8 +80,25 @@ func (a *App) UserProfile(userId string) (*User, error) {
 		return nil, err
 	}
 	return &User{
-		ID:       resp.UserId,
-		Email:    resp.Email,
-		Username: resp.Email,
+		ID:        resp.UserId,
+		Email:     resp.Email,
+		Username:  resp.Email,
+		AvatarURL: resp.Avatar,
 	}, nil
+}
+
+func (a *App) ChangeAvatar(userId string, fileBytes []byte, fileSize int64, contentType string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), a.timeout)
+	defer cancel()
+
+	resp, err := a.userClient.UploadAvatar(ctx, &userpb.UploadAvatarRequest{
+		UserId:      userId,
+		AvatarData:  fileBytes,
+		FileSize:    fileSize,
+		ContentType: contentType,
+	})
+	if err != nil {
+		return "", err
+	}
+	return resp.Url, nil
 }

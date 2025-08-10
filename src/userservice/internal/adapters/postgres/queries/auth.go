@@ -73,7 +73,6 @@ func (q *Queries) GetUserById(ctx context.Context, id string) (*domain.User, err
 		}
 		return nil, err
 	}
-
 	return &user, nil
 }
 

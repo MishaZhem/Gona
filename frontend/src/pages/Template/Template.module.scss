@@ -8,3 +8,16 @@
   justify-content: space-between;
   background-color: $background-base;
 }
+
+.rightBar {
+  display: flex;
+  gap: 0.2rem;
+  align-items: center;
+}
+
+.avatar {
+  background-color: $background-accent-1;
+  border-radius: 999rem;
+  width: 2.5rem;
+  height: 2.5rem;
+}

@@ -66,8 +66,8 @@ type MockStorage struct {
 	mock.Mock
 }
 
-func (m *MockStorage) UploadFile(ctx context.Context, bucket, objectName string, data io.Reader, size int64) error {
-	args := m.Called(ctx, bucket, objectName, data, size)
+func (m *MockStorage) UploadFile(ctx context.Context, bucket, objectName string, data io.Reader, size int64, contentType string) error {
+	args := m.Called(ctx, bucket, objectName, data, size, contentType)
 	return args.Error(0)
 }
 
@@ -157,11 +157,12 @@ func TestUploadAvatar(t *testing.T) {
 	userId := "user123"
 	fileName := "avatars/user123"
 	fileSize := int64(data.Len())
+	contentType := "image/jpeg"
 
 	mockStorage.On("UploadFile", mock.Anything, "test-bucket", fileName, mock.Anything, fileSize).Return(nil)
 	mockStorage.On("GetFileURL", mock.Anything, "test-bucket", fileName).Return("http://localhost/avatar.jpg", nil)
 
-	url, err := testApp.UploadAvatar(context.Background(), userId, data, fileSize)
+	url, err := testApp.UploadAvatar(context.Background(), userId, data, fileSize, contentType)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "http://localhost/avatar.jpg", url)

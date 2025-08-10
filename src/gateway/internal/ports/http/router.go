@@ -14,4 +14,5 @@ func AppRouter(r *gin.RouterGroup, a app.App) {
 	auth := r.Group("/")
 	auth.Use(middleware.AuthMiddleware(a))
 	auth.GET("/profile", userProfile(a))
+	auth.POST("/upload-avatar", uploadAvatar(a))
 }

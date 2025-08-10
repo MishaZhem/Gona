@@ -10,6 +10,7 @@ services:
       - MINIO_ACCESS_KEY=admin
       - MINIO_SECRET_KEY=GonaGona
       - MINIO_BUCKET=avatars
+      - MINIO_PUBLIC_ENDPOINT=http://localhost:9200
     depends_on:
       - userservice_db
     ports:
@@ -79,6 +80,20 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+
+  mc:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      sh -c "
+      sleep 5 &&
+      mc alias set local http://minio:9000 admin GonaGona &&
+      mc mb -p local/avatars || true &&
+      mc anonymous set download local/avatars
+      "
+    networks:
+      - app-network
 
   migrate:
     image: migrate/migrate

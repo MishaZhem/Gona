@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
+
 	"os/signal"
 	"syscall"
 	"time"
@@ -36,12 +38,15 @@ func main() {
 
 	defer pool.Close()
 
-	endpoint := "play.min.io"
-	accessKeyID := "Q3AM3UQ867SPQQA43P2F"
-	secretAccessKey := "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
-	useSSL := true
+	endpoint := getEnv("MINIO_ENDPOINT", "http://minio:9000")
+	accessKeyID := getEnv("MINIO_ACCESS_KEY", "admin")
+	secretAccessKey := getEnv("MINIO_SECRET_KEY", "GonaGona")
+	bucket := getEnv("MINIO_BUCKET", "avatars")
+	useSSL := false
+	if strings.HasPrefix(endpoint, "https://") {
+		useSSL = true
+	}
 
-	bucket := "avatars"
 	minioClient := minio.NewStorageRepository(endpoint, accessKeyID, secretAccessKey, useSSL, logger)
 
 	repo := postgres.NewUserRepository(pool, logger)
