@@ -1,0 +1,18 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/catalogdb
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
