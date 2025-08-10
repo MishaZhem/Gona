@@ -146,27 +146,38 @@ func TestValidateToken(t *testing.T) {
 }
 
 func TestUploadAvatar(t *testing.T) {
+	t.Setenv("MINIO_PUBLIC_ENDPOINT", "http://localhost")
+
 	mockRepo := new(MockRepo)
 	mockStorage := new(MockStorage)
-	jwtService := app.NewJWTService("secret", time.Hour)
 	logger := log.New()
+	jwtService := app.NewJWTService("secret", time.Hour)
 
 	testApp := app.NewApp(mockRepo, jwtService, logger, mockStorage, "test-bucket")
 
 	data := bytes.NewReader([]byte("image-bytes"))
-	userId := "user123"
-	fileName := "avatars/user123"
+	userID := "user123"
 	fileSize := int64(data.Len())
 	contentType := "image/jpeg"
 
-	mockStorage.On("UploadFile", mock.Anything, "test-bucket", fileName, mock.Anything, fileSize).Return(nil)
-	mockStorage.On("GetFileURL", mock.Anything, "test-bucket", fileName).Return("http://localhost/avatar.jpg", nil)
+	expectedObject := userID
+	expectedURL := "http://localhost/test-bucket/" + userID
 
-	url, err := testApp.UploadAvatar(context.Background(), userId, data, fileSize, contentType)
+	mockStorage.
+		On("UploadFile", mock.Anything, "test-bucket", expectedObject, mock.Anything, fileSize, contentType).
+		Return(nil)
+
+	mockRepo.
+		On("UpdateUserAvatar", mock.Anything, userID, expectedURL).
+		Return(nil)
+
+	url, err := testApp.UploadAvatar(context.Background(), userID, data, fileSize, contentType)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "http://localhost/avatar.jpg", url)
+	assert.Equal(t, expectedURL, url)
+
 	mockStorage.AssertExpectations(t)
+	mockRepo.AssertExpectations(t)
 }
 
 func TestDeleteAvatar(t *testing.T) {
