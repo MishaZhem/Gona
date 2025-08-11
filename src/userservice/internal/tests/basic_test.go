@@ -62,6 +62,11 @@ func (m *MockRepo) UpdateUserAvatar(ctx context.Context, userID, avatarURL strin
 	return args.Error(0)
 }
 
+func (m *MockRepo) UpdateStatusWork(ctx context.Context, userID string, worker bool) error {
+	args := m.Called(ctx, userID, worker)
+	return args.Error(0)
+}
+
 type MockStorage struct {
 	mock.Mock
 }

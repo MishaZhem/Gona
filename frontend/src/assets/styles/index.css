@@ -12,3 +12,8 @@
 button {
   cursor: pointer;
 }
+
+a {
+  text-decoration: inherit;
+  cursor: pointer;
+}

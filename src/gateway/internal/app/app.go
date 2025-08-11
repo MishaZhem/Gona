@@ -67,6 +67,7 @@ type User struct {
 	Email     string `json:"email"`
 	Username  string `json:"username"`
 	AvatarURL string `json:"avatar_url"`
+	Worker    bool   `json:"worker"`
 }
 
 func (a *App) UserProfile(userId string) (*User, error) {
@@ -84,7 +85,22 @@ func (a *App) UserProfile(userId string) (*User, error) {
 		Email:     resp.Email,
 		Username:  resp.Email,
 		AvatarURL: resp.Avatar,
+		Worker:    resp.Worker,
 	}, nil
+}
+
+func (a *App) UpdateStatusWorker(userId string, worker bool) error {
+	ctx, cancel := context.WithTimeout(context.Background(), a.timeout)
+	defer cancel()
+
+	_, err := a.userClient.UpdateStatusWork(ctx, &userpb.UpdateStatusWorkRequest{
+		UserId: userId,
+		Worker: worker,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (a *App) ChangeAvatar(userId string, fileBytes []byte, fileSize int64, contentType string) (string, error) {

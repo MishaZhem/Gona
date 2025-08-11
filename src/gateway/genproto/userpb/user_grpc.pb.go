@@ -20,15 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_Register_FullMethodName       = "/user.UserService/Register"
-	UserService_Login_FullMethodName          = "/user.UserService/Login"
-	UserService_ValidateToken_FullMethodName  = "/user.UserService/ValidateToken"
-	UserService_Profile_FullMethodName        = "/user.UserService/Profile"
-	UserService_UploadAvatar_FullMethodName   = "/user.UserService/UploadAvatar"
-	UserService_RemoveAvatar_FullMethodName   = "/user.UserService/RemoveAvatar"
-	UserService_ChangePassword_FullMethodName = "/user.UserService/ChangePassword"
-	UserService_ChangeEmail_FullMethodName    = "/user.UserService/ChangeEmail"
-	UserService_ChangeUsername_FullMethodName = "/user.UserService/ChangeUsername"
+	UserService_Register_FullMethodName         = "/user.UserService/Register"
+	UserService_Login_FullMethodName            = "/user.UserService/Login"
+	UserService_ValidateToken_FullMethodName    = "/user.UserService/ValidateToken"
+	UserService_Profile_FullMethodName          = "/user.UserService/Profile"
+	UserService_UploadAvatar_FullMethodName     = "/user.UserService/UploadAvatar"
+	UserService_RemoveAvatar_FullMethodName     = "/user.UserService/RemoveAvatar"
+	UserService_ChangePassword_FullMethodName   = "/user.UserService/ChangePassword"
+	UserService_ChangeEmail_FullMethodName      = "/user.UserService/ChangeEmail"
+	UserService_ChangeUsername_FullMethodName   = "/user.UserService/ChangeUsername"
+	UserService_UpdateStatusWork_FullMethodName = "/user.UserService/UpdateStatusWork"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -44,6 +45,7 @@ type UserServiceClient interface {
 	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ChangeEmail(ctx context.Context, in *ChangeEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ChangeUsername(ctx context.Context, in *ChangeUsernameRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateStatusWork(ctx context.Context, in *UpdateStatusWorkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userServiceClient struct {
@@ -144,6 +146,16 @@ func (c *userServiceClient) ChangeUsername(ctx context.Context, in *ChangeUserna
 	return out, nil
 }
 
+func (c *userServiceClient) UpdateStatusWork(ctx context.Context, in *UpdateStatusWorkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, UserService_UpdateStatusWork_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -157,6 +169,7 @@ type UserServiceServer interface {
 	ChangePassword(context.Context, *ChangePasswordRequest) (*emptypb.Empty, error)
 	ChangeEmail(context.Context, *ChangeEmailRequest) (*emptypb.Empty, error)
 	ChangeUsername(context.Context, *ChangeUsernameRequest) (*emptypb.Empty, error)
+	UpdateStatusWork(context.Context, *UpdateStatusWorkRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -193,6 +206,9 @@ func (UnimplementedUserServiceServer) ChangeEmail(context.Context, *ChangeEmailR
 }
 func (UnimplementedUserServiceServer) ChangeUsername(context.Context, *ChangeUsernameRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeUsername not implemented")
+}
+func (UnimplementedUserServiceServer) UpdateStatusWork(context.Context, *UpdateStatusWorkRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatusWork not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -377,6 +393,24 @@ func _UserService_ChangeUsername_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UpdateStatusWork_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateStatusWorkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UpdateStatusWork(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UpdateStatusWork_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UpdateStatusWork(ctx, req.(*UpdateStatusWorkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -419,6 +453,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeUsername",
 			Handler:    _UserService_ChangeUsername_Handler,
+		},
+		{
+			MethodName: "UpdateStatusWork",
+			Handler:    _UserService_UpdateStatusWork_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

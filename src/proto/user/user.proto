@@ -15,6 +15,7 @@ service UserService {
   rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty) {}
   rpc ChangeEmail(ChangeEmailRequest) returns (google.protobuf.Empty) {}
   rpc ChangeUsername(ChangeUsernameRequest) returns (google.protobuf.Empty) {}
+  rpc UpdateStatusWork(UpdateStatusWorkRequest) returns (google.protobuf.Empty) {}
 
 }
 
@@ -50,6 +51,7 @@ message ProfileResponse {
   string email = 2;
   string username = 3;
   string avatar = 4;
+  bool worker = 5;
 }
 
 message RemoveAvatarRequest {
@@ -82,4 +84,9 @@ message UploadAvatarRequest {
 
 message UploadAvatarResponse {
   string url = 1;
+}
+
+message UpdateStatusWorkRequest {
+  string userId = 1;
+  bool worker = 2;
 }

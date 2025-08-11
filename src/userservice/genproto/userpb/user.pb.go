@@ -316,6 +316,7 @@ type ProfileResponse struct {
 	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
 	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Worker        bool                   `protobuf:"varint,5,opt,name=worker,proto3" json:"worker,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -376,6 +377,13 @@ func (x *ProfileResponse) GetAvatar() string {
 		return x.Avatar
 	}
 	return ""
+}
+
+func (x *ProfileResponse) GetWorker() bool {
+	if x != nil {
+		return x.Worker
+	}
+	return false
 }
 
 type RemoveAvatarRequest struct {
@@ -698,6 +706,58 @@ func (x *UploadAvatarResponse) GetUrl() string {
 	return ""
 }
 
+type UpdateStatusWorkRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
+	Worker        bool                   `protobuf:"varint,2,opt,name=worker,proto3" json:"worker,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateStatusWorkRequest) Reset() {
+	*x = UpdateStatusWorkRequest{}
+	mi := &file_user_user_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateStatusWorkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateStatusWorkRequest) ProtoMessage() {}
+
+func (x *UpdateStatusWorkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_user_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateStatusWorkRequest.ProtoReflect.Descriptor instead.
+func (*UpdateStatusWorkRequest) Descriptor() ([]byte, []int) {
+	return file_user_user_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *UpdateStatusWorkRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UpdateStatusWorkRequest) GetWorker() bool {
+	if x != nil {
+		return x.Worker
+	}
+	return false
+}
+
 var File_user_user_proto protoreflect.FileDescriptor
 
 const file_user_user_proto_rawDesc = "" +
@@ -717,12 +777,13 @@ const file_user_user_proto_rawDesc = "" +
 	"\rTokenResponse\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\tR\x06userId\"(\n" +
 	"\x0eProfileRequest\x12\x16\n" +
-	"\x06userId\x18\x01 \x01(\tR\x06userId\"s\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\"\x8b\x01\n" +
 	"\x0fProfileResponse\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\x12\x16\n" +
-	"\x06avatar\x18\x04 \x01(\tR\x06avatar\"-\n" +
+	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x16\n" +
+	"\x06worker\x18\x05 \x01(\bR\x06worker\"-\n" +
 	"\x13RemoveAvatarRequest\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\tR\x06userId\"s\n" +
 	"\x15ChangePasswordRequest\x12\x16\n" +
@@ -743,7 +804,10 @@ const file_user_user_proto_rawDesc = "" +
 	"\bfileSize\x18\x03 \x01(\x03R\bfileSize\x12 \n" +
 	"\vcontentType\x18\x04 \x01(\tR\vcontentType\"(\n" +
 	"\x14UploadAvatarResponse\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url2\xd7\x04\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\"I\n" +
+	"\x17UpdateStatusWorkRequest\x12\x16\n" +
+	"\x06userId\x18\x01 \x01(\tR\x06userId\x12\x16\n" +
+	"\x06worker\x18\x02 \x01(\bR\x06worker2\xa4\x05\n" +
 	"\vUserService\x12;\n" +
 	"\bRegister\x12\x15.user.RegisterRequest\x1a\x16.google.protobuf.Empty\"\x00\x122\n" +
 	"\x05Login\x12\x12.user.LoginRequest\x1a\x13.user.LoginResponse\"\x00\x12:\n" +
@@ -753,7 +817,8 @@ const file_user_user_proto_rawDesc = "" +
 	"\fRemoveAvatar\x12\x19.user.RemoveAvatarRequest\x1a\x16.google.protobuf.Empty\"\x00\x12G\n" +
 	"\x0eChangePassword\x12\x1b.user.ChangePasswordRequest\x1a\x16.google.protobuf.Empty\"\x00\x12A\n" +
 	"\vChangeEmail\x12\x18.user.ChangeEmailRequest\x1a\x16.google.protobuf.Empty\"\x00\x12G\n" +
-	"\x0eChangeUsername\x12\x1b.user.ChangeUsernameRequest\x1a\x16.google.protobuf.Empty\"\x00B-Z+github.com/MishaZhem/Gona/proto/user;userpbb\x06proto3"
+	"\x0eChangeUsername\x12\x1b.user.ChangeUsernameRequest\x1a\x16.google.protobuf.Empty\"\x00\x12K\n" +
+	"\x10UpdateStatusWork\x12\x1d.user.UpdateStatusWorkRequest\x1a\x16.google.protobuf.Empty\"\x00B-Z+github.com/MishaZhem/Gona/proto/user;userpbb\x06proto3"
 
 var (
 	file_user_user_proto_rawDescOnce sync.Once
@@ -767,22 +832,23 @@ func file_user_user_proto_rawDescGZIP() []byte {
 	return file_user_user_proto_rawDescData
 }
 
-var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_user_user_proto_goTypes = []any{
-	(*RegisterRequest)(nil),       // 0: user.RegisterRequest
-	(*LoginRequest)(nil),          // 1: user.LoginRequest
-	(*LoginResponse)(nil),         // 2: user.LoginResponse
-	(*TokenRequest)(nil),          // 3: user.TokenRequest
-	(*TokenResponse)(nil),         // 4: user.TokenResponse
-	(*ProfileRequest)(nil),        // 5: user.ProfileRequest
-	(*ProfileResponse)(nil),       // 6: user.ProfileResponse
-	(*RemoveAvatarRequest)(nil),   // 7: user.RemoveAvatarRequest
-	(*ChangePasswordRequest)(nil), // 8: user.ChangePasswordRequest
-	(*ChangeEmailRequest)(nil),    // 9: user.ChangeEmailRequest
-	(*ChangeUsernameRequest)(nil), // 10: user.ChangeUsernameRequest
-	(*UploadAvatarRequest)(nil),   // 11: user.UploadAvatarRequest
-	(*UploadAvatarResponse)(nil),  // 12: user.UploadAvatarResponse
-	(*emptypb.Empty)(nil),         // 13: google.protobuf.Empty
+	(*RegisterRequest)(nil),         // 0: user.RegisterRequest
+	(*LoginRequest)(nil),            // 1: user.LoginRequest
+	(*LoginResponse)(nil),           // 2: user.LoginResponse
+	(*TokenRequest)(nil),            // 3: user.TokenRequest
+	(*TokenResponse)(nil),           // 4: user.TokenResponse
+	(*ProfileRequest)(nil),          // 5: user.ProfileRequest
+	(*ProfileResponse)(nil),         // 6: user.ProfileResponse
+	(*RemoveAvatarRequest)(nil),     // 7: user.RemoveAvatarRequest
+	(*ChangePasswordRequest)(nil),   // 8: user.ChangePasswordRequest
+	(*ChangeEmailRequest)(nil),      // 9: user.ChangeEmailRequest
+	(*ChangeUsernameRequest)(nil),   // 10: user.ChangeUsernameRequest
+	(*UploadAvatarRequest)(nil),     // 11: user.UploadAvatarRequest
+	(*UploadAvatarResponse)(nil),    // 12: user.UploadAvatarResponse
+	(*UpdateStatusWorkRequest)(nil), // 13: user.UpdateStatusWorkRequest
+	(*emptypb.Empty)(nil),           // 14: google.protobuf.Empty
 }
 var file_user_user_proto_depIdxs = []int32{
 	0,  // 0: user.UserService.Register:input_type -> user.RegisterRequest
@@ -794,17 +860,19 @@ var file_user_user_proto_depIdxs = []int32{
 	8,  // 6: user.UserService.ChangePassword:input_type -> user.ChangePasswordRequest
 	9,  // 7: user.UserService.ChangeEmail:input_type -> user.ChangeEmailRequest
 	10, // 8: user.UserService.ChangeUsername:input_type -> user.ChangeUsernameRequest
-	13, // 9: user.UserService.Register:output_type -> google.protobuf.Empty
-	2,  // 10: user.UserService.Login:output_type -> user.LoginResponse
-	4,  // 11: user.UserService.ValidateToken:output_type -> user.TokenResponse
-	6,  // 12: user.UserService.Profile:output_type -> user.ProfileResponse
-	12, // 13: user.UserService.UploadAvatar:output_type -> user.UploadAvatarResponse
-	13, // 14: user.UserService.RemoveAvatar:output_type -> google.protobuf.Empty
-	13, // 15: user.UserService.ChangePassword:output_type -> google.protobuf.Empty
-	13, // 16: user.UserService.ChangeEmail:output_type -> google.protobuf.Empty
-	13, // 17: user.UserService.ChangeUsername:output_type -> google.protobuf.Empty
-	9,  // [9:18] is the sub-list for method output_type
-	0,  // [0:9] is the sub-list for method input_type
+	13, // 9: user.UserService.UpdateStatusWork:input_type -> user.UpdateStatusWorkRequest
+	14, // 10: user.UserService.Register:output_type -> google.protobuf.Empty
+	2,  // 11: user.UserService.Login:output_type -> user.LoginResponse
+	4,  // 12: user.UserService.ValidateToken:output_type -> user.TokenResponse
+	6,  // 13: user.UserService.Profile:output_type -> user.ProfileResponse
+	12, // 14: user.UserService.UploadAvatar:output_type -> user.UploadAvatarResponse
+	14, // 15: user.UserService.RemoveAvatar:output_type -> google.protobuf.Empty
+	14, // 16: user.UserService.ChangePassword:output_type -> google.protobuf.Empty
+	14, // 17: user.UserService.ChangeEmail:output_type -> google.protobuf.Empty
+	14, // 18: user.UserService.ChangeUsername:output_type -> google.protobuf.Empty
+	14, // 19: user.UserService.UpdateStatusWork:output_type -> google.protobuf.Empty
+	10, // [10:20] is the sub-list for method output_type
+	0,  // [0:10] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -821,7 +889,7 @@ func file_user_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_user_proto_rawDesc), len(file_user_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

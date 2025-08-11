@@ -54,7 +54,7 @@ func (s *Server) Profile(ctx context.Context, req *userpb.ProfileRequest) (*user
 	if err != nil {
 		return &userpb.ProfileResponse{UserId: ""}, status.Error(getStatusByError(err), err.Error())
 	}
-	return &userpb.ProfileResponse{UserId: user.ID.String(), Username: user.Username, Email: user.Email, Avatar: user.AvatarURL}, nil
+	return &userpb.ProfileResponse{UserId: user.ID.String(), Username: user.Username, Email: user.Email, Avatar: user.AvatarURL, Worker: user.Worker}, nil
 }
 
 func (s *Server) UploadAvatar(ctx context.Context, req *userpb.UploadAvatarRequest) (*userpb.UploadAvatarResponse, error) {
@@ -92,6 +92,14 @@ func (s *Server) ChangeEmail(ctx context.Context, req *userpb.ChangeEmailRequest
 
 func (s *Server) ChangeUsername(ctx context.Context, req *userpb.ChangeUsernameRequest) (*emptypb.Empty, error) {
 	err := s.app.ChangeUsername(ctx, req.UserId, req.NewUsername)
+	if err != nil {
+		return nil, status.Error(getStatusByError(err), err.Error())
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Server) UpdateStatusWork(ctx context.Context, req *userpb.UpdateStatusWorkRequest) (*emptypb.Empty, error) {
+	err := s.app.UpdateStatusWorker(ctx, req.UserId, req.Worker)
 	if err != nil {
 		return nil, status.Error(getStatusByError(err), err.Error())
 	}

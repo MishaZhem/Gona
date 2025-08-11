@@ -1,20 +1,16 @@
 @use "../../assets//styles//variables.scss" as *;
-
-@mixin button-style($bg, $text-color) {
-  background-color: $bg;
-  color: $text-color;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+@use "../../assets//styles//mixins.scss" as *;
 
 .button {
   @include button-style($background-neutral-1, $text-primary);
+
+  &:hover {
+    background-color: $background-neutral-1-hover;
+  }
+
+  &:active {
+    background-color: $background-neutral-1-pressed;
+  }
 }
 
 .accent {
@@ -31,6 +27,14 @@
 
 .secondary {
   @include button-style($background-neutral-2, $text-secondary);
+
+  &:hover {
+    background-color: $background-neutral-2-hover;
+  }
+
+  &:active {
+    background-color: $background-neutral-2-pressed;
+  }
 }
 
 .invisible {

@@ -1,12 +1,18 @@
 @use "../../assets//styles/variables.scss" as *;
+@use "../../assets//styles//mixins.scss" as *;
 
 .header {
   width: 100%;
   box-sizing: border-box;
-  padding: 0.6rem 2rem;
+  padding: 0.6rem 5rem;
   display: flex;
   justify-content: space-between;
   background-color: $background-base;
+  border-bottom: 1px solid $border-normal;
+
+  @media (max-width: $tablet) {
+    padding: 0.6rem 2rem;
+  }
 }
 
 .rightBar {
@@ -15,9 +21,66 @@
   align-items: center;
 }
 
+.Logo h1 {
+  font-weight: 800;
+  line-height: 1.4;
+  font-family: "Inter";
+}
+
 .avatar {
-  background-color: $background-accent-1;
+  @include border-style(1px);
   border-radius: 999rem;
   width: 2.5rem;
   height: 2.5rem;
+  cursor: pointer;
+}
+
+.user {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttons {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+
+  @media (max-width: $tablet) {
+    display: none;
+  }
+}
+
+.profileBlock {
+  position: relative;
+}
+
+.menu {
+  border: 1px solid $border-normal;
+  position: absolute;
+  top: 3.25rem;
+  right: 0;
+  border-radius: 1rem;
+  background-color: $background-base;
+  width: 10rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  & a,
+  & button {
+    background-color: $background-invisible;
+    border: 0;
+    font-weight: 800;
+    line-height: 1.4;
+    font-size: 1rem;
+    font-family: "Inter";
+    text-align: left;
+  }
 }

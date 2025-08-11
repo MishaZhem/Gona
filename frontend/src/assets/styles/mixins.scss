@@ -1,0 +1,26 @@
+@use "./variables.scss" as *;
+
+@mixin border-style($size) {
+  border: $size solid $border-normal;
+
+  &:hover {
+    border: $size solid $border-hover;
+  }
+
+  &:active {
+    border: $size solid $border-focus;
+  }
+}
+
+@mixin button-style($bg, $text-color) {
+  background-color: $bg;
+  color: $text-color;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

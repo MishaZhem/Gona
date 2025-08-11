@@ -35,6 +35,7 @@ type App interface {
 	ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error
 	ChangeEmail(ctx context.Context, userID, newEmail string) error
 	ChangeUsername(ctx context.Context, userID, newUsername string) error
+	UpdateStatusWorker(ctx context.Context, userId string, worker bool) error
 }
 
 type UserRepository interface {
@@ -46,6 +47,7 @@ type UserRepository interface {
 	UpdateUsername(ctx context.Context, userID, newUsername string) error
 	UpdateEmail(ctx context.Context, userID, newEmail string) error
 	UpdateUserAvatar(ctx context.Context, userID, avatarURL string) error
+	UpdateStatusWork(ctx context.Context, userID string, newStatus bool) error
 }
 
 type StorageRepository interface {
@@ -198,6 +200,10 @@ func (s *Service) ChangeUsername(ctx context.Context, userID, newUsername string
 
 func (s *Service) ChangeEmail(ctx context.Context, userID, newEmail string) error {
 	return s.repo.UpdateEmail(ctx, userID, newEmail)
+}
+
+func (s *Service) UpdateStatusWorker(ctx context.Context, userID string, worker bool) error {
+	return s.repo.UpdateStatusWork(ctx, userID, worker)
 }
 
 func (j *JWTService) GenerateToken(userID string, email string) (string, error) {

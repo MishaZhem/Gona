@@ -150,3 +150,31 @@ func uploadAvatar(a app.App) gin.HandlerFunc {
 		c.JSON(http.StatusOK, url)
 	}
 }
+
+type updateStatusWorkerRequest struct {
+	Worker bool `json:"worker" binding:"required"`
+}
+
+func updateStatusWorker(a app.App) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req updateStatusWorkerRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, ErrorResponse(ErrInvalid))
+			return
+		}
+
+		userID, ok := c.Get("userID")
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "userID missing"})
+			return
+		}
+
+		err := a.UpdateStatusWorker(userID.(string), req.Worker)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, ErrorResponse(err))
+			return
+		}
+
+		c.Status(http.StatusCreated)
+	}
+}

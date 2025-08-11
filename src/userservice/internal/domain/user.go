@@ -13,4 +13,5 @@ type User struct {
 	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"time"`
 	AvatarURL string    `json:"avatar_url"`
+	Worker    bool      `json:"worker"`
 }
